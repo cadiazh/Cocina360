@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ recipe.name }}</title>
+    <style>
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+        /* Optional: style the checkbox and label */
+        .checkbox-label {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ recipe.name }}</h1>
+    <p>Preparation Time: {{ recipe.preparation_time }} minutes</p>
+    <p>Portions: {% if recipe.min_portion %}{{ recipe.min_portion }}{% endif %}{% if recipe.max_portion %}-{{ recipe.max_portion }}{% endif %}</p>
+
+    <h2>Ingredients</h2>
+    <ul>
+        {% for item in ingredients_with_status %}
+            <li>
+                <form action="{% url 'toggle_ingredient_completion' recipe_pk=recipe.pk ingredient_pk=item.ingredient.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="checkbox" id="ingredient-{{ item.ingredient.pk }}" name="completed" onchange="this.form.submit()" {% if item.completed %}checked{% endif %}>
+                    <label for="ingredient-{{ item.ingredient.pk }}" class="checkbox-label {% if item.completed %}completed{% endif %}">
+                        {{ item.ingredient.name }}
+                    </label>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Steps</h2>
+    <ol>
+        {% for item in steps_with_status %}
+            <li>
+                <form action="{% url 'toggle_step_completion' recipe_pk=recipe.pk step_pk=item.step.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="checkbox" id="step-{{ item.step.pk }}" name="completed" onchange="this.form.submit()" {% if item.completed %}checked{% endif %}>
+                    <label for="step-{{ item.step.pk }}" class="checkbox-label {% if item.completed %}completed{% endif %}">
+                        {{ item.step.description }}
+                    </label>
+                </form>
+            </li>
+        {% endfor %}
+    </ol>
+
+    <p><a href="{% url 'recipe_list' %}">Back to Recipes</a></p>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chilean Recipes</title>
+</head>
+<body>
+    <h1>Available Recipes</h1>
+    <ul>
+        {% for recipe in recipes %}
+            <li><a href="{% url 'recipe_detail' pk=recipe.pk %}">{{ recipe.name }}</a></li>
+        {% endfor %}
+    </ul>
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}! <a href="{% url 'logout' %}">Logout</a></p>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a> to track your progress.</p>
+    {% endif %}
+</body>
+</html>
