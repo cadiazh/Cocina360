@@ -1,19 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Chilean Recipes</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cocina 360</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 3px solid #0077cc;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        li {
+            background: white;
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        li:hover {
+            box-shadow: 0 4px 10px rgb(0 0 0 / 0.15);
+        }
+        a {
+            color: #0077cc;
+            font-weight: 600;
+            font-size: 1.2rem;
+            text-decoration: none;
+            display: block;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .auth-message {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 1rem;
+            color: #555;
+        }
+        .auth-message a {
+            color: #0077cc;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-    <h1>Available Recipes</h1>
+    <h1>Cocina 360</h1>
     <ul>
         {% for recipe in recipes %}
             <li><a href="{% url 'recipe_detail' pk=recipe.pk %}">{{ recipe.name }}</a></li>
+        {% empty %}
+            <li>No recipes available.</li>
         {% endfor %}
     </ul>
-    {% if user.is_authenticated %}
-        <p>Welcome, {{ user.username }}! <a href="{% url 'logout' %}">Logout</a></p>
-    {% else %}
-        <p><a href="{% url 'login' %}">Login</a> to track your progress.</p>
-    {% endif %}
+
+    <div class="auth-message">
+        {% if user.is_authenticated %}
+            Welcome, {{ user.username }}! <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a> to track your progress.
+        {% endif %}
+    </div>
 </body>
 </html>
