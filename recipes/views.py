@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Recipe, Ingredient, Step, UserIngredientCompletion, UserStepCompletion, FavoriteRecipe
 from django.contrib.auth.models import User 
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
+from django.views.decorators.http import require_POST
 from .forms import RegisterForm, RecipeForm, IngredientFormSet, StepFormSet
 from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
@@ -137,6 +138,11 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 
+@login_required
+@require_POST
+def logout_view(request):
+    logout(request)
+    return redirect('recipe_list')  # o la url que quieras
 
 @login_required
 def recipe_create(request):

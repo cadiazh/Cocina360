@@ -89,6 +89,10 @@
 
         <button type="submit">Log In</button>
     </form>
+    <form action="{% url 'recipe_list' %}" method="get" style="text-align:center;">
+        <button type="submit" class="back-button">Volver a Cocina 360</button>
+    </form>
     <p class="register-link">Don't have an account? <a href="{% url 'register' %}">Register here</a>.</p>
+
 </body>
 </html>
