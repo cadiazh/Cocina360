@@ -8,9 +8,9 @@ Sigue estos pasos para ejecutar **Cocina 360** correctamente en tu equipo.
 
 Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
-- **Python 3.8 o superior**  
+- **Python 3.12 o superior**  
   Descárgalo desde el sitio oficial:  
-  [https://www.python.org/downloads/](https://www.python.org/downloads/)
+  [https://www.python.org/downloads/](https://www.python.org/downloads/](https://www.python.org/downloads/release/python-3128/)
 
 - **pip** (el instalador de paquetes de Python)  
   Normalmente viene incluido con Python. Puedes verificarlo ejecutando `pip --version` en la terminal.
@@ -22,7 +22,7 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
 ### 1. Descargar el proyecto
 
 - Accede al repositorio de GitHub de **Cocina 360**  
-  *(Reemplaza `#` con la URL de tu repositorio)*  
+  *https://github.com/cadiazh/Cocina360*  
 - Haz clic en el botón verde **"Code"** y selecciona **"Download ZIP"**.  
 - Extrae el contenido en una carpeta de tu preferencia.
 
@@ -38,3 +38,34 @@ Ejemplo en Windows:
 
 ```bash
 cd C:\Users\tu_usuario\Desktop\cocina360\Cocina360
+```
+## 🚀 Instrucciones de instalación y ejecución
+
+### 3. Instalar las dependencias
+Instala los paquetes necesarios con:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Aplicar las migraciones de la base de datos
+Configura la base de datos ejecutando:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### 5. Ejecutar el servidor de desarrollo
+Inicia el servidor de Django con:
+
+```bash
+python manage.py runserver
+```
+
+### 6. Abrir la aplicación web
+Abre tu navegador y visita:
+
+```bash
+http://localhost:8000/
+```
