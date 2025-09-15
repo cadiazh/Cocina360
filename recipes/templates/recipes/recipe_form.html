@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>New Recipe - Cocina 360</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button, .add-btn, .remove-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #0077cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 4px;
+            user-select: none;
+        }
+        button:hover, .add-btn:hover, .remove-btn:hover { background: #005fa3; }
+        fieldset { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; }
+        legend { font-weight: bold; }
+        .form-row { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        .remove-btn {
+            background: #cc3300;
+            padding: 4px 10px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+        .remove-btn:hover { background: #992200; }
+
+        /* 🔥 Ocultar los cubitos (checkbox DELETE) */
+        input[type="checkbox"][name$="-DELETE"] {
+            display: none;
+        }
+        input[name$="-order"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Publish New Recipe</h1>
+    <form method="post" id="recipe-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <fieldset id="ingredients-fieldset">
+            <legend>Ingredients</legend>
+            {{ ingredient_formset.management_form }}
+            <div id="ingredients-forms">
+                {% for form in ingredient_formset %}
+                    <div class="form-row">
+                        {{ form.name.label_tag }} {{ form.name }}
+                        {{ form.DELETE }}  <!-- oculto por CSS -->
+                        <button type="button" class="remove-btn" onclick="removeForm(this)">Remove</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="add-btn" onclick="addForm('ingredients')">+ Add Ingredient</button>
+        </fieldset>
+
+        <fieldset id="steps-fieldset">
+            <legend>Steps</legend>
+            {{ step_formset.management_form }}
+            <div id="steps-forms">
+                {% for form in step_formset %}
+                    <div class="form-row step-row">
+                        {{ form.order }} <!-- se rellena automáticamente -->
+                        {{ form.description.label_tag }} {{ form.description }}
+                        {{ form.DELETE }} <!-- oculto -->
+                        <button type="button" class="remove-btn" onclick="removeForm(this)">Remove</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="add-btn" onclick="addForm('steps')">+ Add Step</button>
+        </fieldset>
+
+        <button type="submit">Publish Recipe</button>
+    </form>
+    <p><a href="{% url 'recipe_list' %}">← Back to Recipes</a></p>
+
+<script>
+    function removeForm(button) {
+        const formRow = button.closest('.form-row');
+        const deleteInput = formRow.querySelector('input[type=checkbox][name$="-DELETE"]');
+        if (deleteInput) {
+            deleteInput.checked = true;
+            formRow.style.display = 'none';
+        } else {
+            formRow.remove();
+        }
+        updateFormIndices();
+    }
+
+    function addForm(prefix) {
+        const formsDiv = document.getElementById(prefix + '-forms');
+        const totalFormsInput = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+        const currentFormCount = parseInt(totalFormsInput.value);
+        const emptyFormTemplate = document.getElementById(prefix + '-empty-form').innerHTML;
+
+        const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, currentFormCount);
+        const tempDiv = document.createElement('div');
+        tempDiv.classList.add('form-row');
+        if (prefix === 'steps') tempDiv.classList.add('step-row');
+        tempDiv.innerHTML = newFormHtml + `
+            <button type="button" class="remove-btn" onclick="removeForm(this)">Remove</button>
+        `;
+
+        formsDiv.appendChild(tempDiv);
+        totalFormsInput.value = currentFormCount + 1;
+        updateFormIndices();
+    }
+
+    function updateFormIndices() {
+        ['ingredients', 'steps'].forEach(prefix => {
+            const formsDiv = document.getElementById(prefix + '-forms');
+            const totalFormsInput = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+            const forms = formsDiv.querySelectorAll('.form-row:not([style*="display: none"])');
+            totalFormsInput.value = forms.length;
+            forms.forEach((formRow, index) => {
+                formRow.querySelectorAll('input, select, textarea, label').forEach(el => {
+                    if (el.name) {
+                        el.name = el.name.replace(new RegExp(`${prefix}-\\d+`), `${prefix}-${index}`);
+                    }
+                    if (el.id) {
+                        el.id = el.id.replace(new RegExp(`${prefix}-\\d+`), `${prefix}-${index}`);
+                    }
+                    if (el.htmlFor) {
+                        el.htmlFor = el.htmlFor.replace(new RegExp(`${prefix}-\\d+`), `${prefix}-${index}`);
+                    }
+                });
+                // 🔥 Auto enumerar Steps
+                if (prefix === 'steps') {
+                    const orderInput = formRow.querySelector('input[name$="-order"]');
+                    if (orderInput) orderInput.value = index + 1;
+                }
+            });
+        });
+    }
+
+    // Ejecutar al inicio para numerar bien los pasos existentes
+    document.addEventListener("DOMContentLoaded", updateFormIndices);
+</script>
+
+<!-- Empty form templates -->
+<div id="ingredients-empty-form" style="display:none;">
+    <label for="id_ingredients-__prefix__-name">Name:</label>
+    <input type="text" name="ingredients-__prefix__-name" id="id_ingredients-__prefix__-name" />
+    <input type="checkbox" name="ingredients-__prefix__-DELETE" id="id_ingredients-__prefix__-DELETE" />
+</div>
+
+<div id="steps-empty-form" style="display:none;">
+    <input type="hidden" name="steps-__prefix__-order" id="id_steps-__prefix__-order" value="__order__" />
+    <label for="id_steps-__prefix__-description">Description:</label>
+    <textarea name="steps-__prefix__-description" id="id_steps-__prefix__-description"></textarea>
+    <input type="checkbox" name="steps-__prefix__-DELETE" id="id_steps-__prefix__-DELETE" />
+</div>
+
+</body>
+</html>

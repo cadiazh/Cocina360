@@ -144,5 +144,23 @@
     </ol>
 
     <a href="{% url 'recipe_list' %}" class="back-link">← Back to Recipes</a>
+    {% if user.is_authenticated and user == recipe.creator %}
+        <form action="{% url 'recipe_delete' pk=recipe.pk %}" method="get" style="margin-top: 30px;">
+            <button type="submit" style="
+                background-color: #cc3300;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            " 
+            onmouseover="this.style.backgroundColor='#992200'" 
+            onmouseout="this.style.backgroundColor='#cc3300'">
+                Delete Recipe
+            </button>
+        </form>
+    {% endif %}
 </body>
 </html>

@@ -6,6 +6,7 @@ class Recipe(models.Model):
     preparation_time = models.FloatField(null=True, blank=True)
     min_portion = models.IntegerField(null=True, blank=True)
     max_portion = models.IntegerField(null=True, blank=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes')
 
     def __str__(self):
         return self.name
