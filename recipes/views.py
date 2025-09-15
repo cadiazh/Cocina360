@@ -6,6 +6,8 @@ from .forms import RegisterForm, RecipeForm, IngredientFormSet, StepFormSet
 from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
 from django.http import HttpResponseForbidden
+from rest_framework import generics, permissions
+from .serializers import RecipeSerializer
 
 def recipe_list(request):
     recipes = Recipe.objects.all()
@@ -116,6 +118,20 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
+
+class RecipeListCreate(generics.ListCreateAPIView):
+    serializer_class = RecipeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return Recipe.objects.filter(creator=self.request.user)
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
+class RecipeRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = RecipeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        # Solo puede acceder a sus propias recetas
+        return Recipe.objects.filter(author=self.request.user)
 
 
 

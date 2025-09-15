@@ -7,6 +7,8 @@ urlpatterns = [
     path('<int:recipe_pk>/ingredient/<int:ingredient_pk>/toggle/', views.toggle_ingredient_completion, name='toggle_ingredient_completion'),
     path('<int:recipe_pk>/step/<int:step_pk>/toggle/', views.toggle_step_completion, name='toggle_step_completion'),
     path('recipes/<int:pk>/delete/', views.recipe_delete, name='recipe_delete'),
+    path('recipes/', views.RecipeListCreate.as_view(), name='recipe-list-create'),
+    path('recipes/<int:pk>/', views.RecipeRetrieveUpdateDestroy.as_view(), name='recipe-detail'),
     # Auth
     path('accounts/', include('django.contrib.auth.urls')),  # login, logout, password reset
     # Registration
