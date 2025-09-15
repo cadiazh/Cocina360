@@ -32,6 +32,9 @@
             color: #2c3e50;
             border-bottom: 2px solid #0077cc;
             padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         h2 {
             margin-top: 30px;
@@ -77,6 +80,26 @@
             color: #999;
             font-style: italic;
         }
+        /* Favorite button */
+        form.favorite-form {
+            margin-left: 15px;
+        }
+        button.favorite-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 2rem;
+            color: gray;
+            transition: color 0.3s ease;
+            padding: 0;
+            margin-left: 15px;
+        }
+        button.favorite-btn.favorited {
+            color: red;
+        }
+        button.favorite-btn:hover {
+            color: #cc0000;
+        }
         /* Button-like link for back */
         .back-link {
             display: inline-block;
@@ -87,6 +110,7 @@
             border-radius: 4px;
             font-weight: 600;
             transition: background-color 0.3s ease;
+            text-decoration: none;
         }
         .back-link:hover {
             background-color: #005fa3;
@@ -98,6 +122,12 @@
             }
             h1 {
                 font-size: 2rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            button.favorite-btn {
+                margin-left: 0;
+                margin-top: 10px;
             }
             li {
                 font-size: 1rem;
@@ -106,7 +136,20 @@
     </style>
 </head>
 <body>
-    <h1>{{ recipe.name }}</h1>
+    <h1>
+        {{ recipe.name }}
+        {% if user.is_authenticated %}
+            <form action="{% url 'toggle_favorite' pk=recipe.pk %}" method="post" class="favorite-form" title="Toggle Favorite">
+                {% csrf_token %}
+                {% if recipe.pk in favorite_recipe_ids %}
+                    <button type="submit" class="favorite-btn favorited" aria-label="Remove from favorites">♥</button>
+                {% else %}
+                    <button type="submit" class="favorite-btn" aria-label="Add to favorites">♡</button>
+                {% endif %}
+            </form>
+        {% endif %}
+    </h1>
+
     <p><strong>Preparation Time:</strong> {{ recipe.preparation_time }} minutes</p>
     <p><strong>Portions:</strong> 
         {% if recipe.min_portion %}{{ recipe.min_portion }}{% endif %}

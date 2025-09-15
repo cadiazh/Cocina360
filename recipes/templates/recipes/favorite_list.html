@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Favorite Recipes - Cocina 360</title>
+</head>
+<body>
+    <header>
+        <h1>My Favorite Recipes</h1>
+        <nav>
+            <a href="{% url 'recipe_list' %}">All Recipes</a>
+            <a href="{% url 'recipe_create' %}">+ New Recipe</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </nav>
+    </header>
+
+    <ul>
+        {% for fav in favorites %}
+            <li>
+                <a href="{% url 'recipe_detail' pk=fav.recipe.pk %}">{{ fav.recipe.name }}</a>
+                <form action="{% url 'toggle_favorite' pk=fav.recipe.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="color: red; border:none; background:none; cursor:pointer;" title="Remove from favorites">Remove</button>
+                </form>
+            </li>
+        {% empty %}
+            <li>You have no favorite recipes yet.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

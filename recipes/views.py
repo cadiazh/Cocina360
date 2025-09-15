@@ -1,15 +1,34 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Recipe, Ingredient, Step, UserIngredientCompletion, UserStepCompletion
+from .models import Recipe, Ingredient, Step, UserIngredientCompletion, UserStepCompletion, FavoriteRecipe
 from django.contrib.auth.models import User 
 from django.contrib.auth import login
 from .forms import RegisterForm, RecipeForm, IngredientFormSet, StepFormSet
 from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
 from django.http import HttpResponseForbidden
+from django.db.models import Q
 
 def recipe_list(request):
+    # Obtener parámetros de búsqueda
+    ingredient_query = request.GET.get('ingredient', '').strip()
+    max_time = request.GET.get('max_time', '').strip()
     recipes = Recipe.objects.all()
-    return render(request, 'recipes/recipe_list.html', {'recipes': recipes})
+    if ingredient_query:
+        # Filtrar recetas que tengan ingredientes que contengan el texto buscado (case insensitive)
+        recipes = recipes.filter(
+            ingredients__name__icontains=ingredient_query
+        ).distinct()
+    if max_time:
+        try:
+            max_time_float = float(max_time)
+            recipes = recipes.filter(preparation_time__lte=max_time_float)
+        except ValueError:
+            pass  # Ignorar si no es número válido
+    return render(request, 'recipes/recipe_list.html', {
+        'recipes': recipes,
+        'ingredient_query': ingredient_query,
+        'max_time': max_time,
+    })
 
 
 def recipe_detail(request, pk):
@@ -153,3 +172,17 @@ def recipe_delete(request, pk):
         recipe.delete()
         return redirect('recipe_list')
     return render(request, 'recipes/recipe_confirm_delete.html', {'recipe': recipe})
+
+@login_required
+def favorite_list(request):
+    favorites = FavoriteRecipe.objects.filter(user=request.user).select_related('recipe')
+    return render(request, 'recipes/favorite_list.html', {'favorites': favorites})
+
+@login_required
+def toggle_favorite(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    favorite, created = FavoriteRecipe.objects.get_or_create(user=request.user, recipe=recipe)
+    if not created:
+        # Ya existía, eliminar para quitar favorito
+        favorite.delete()
+    return redirect('recipe_detail', pk=pk)
