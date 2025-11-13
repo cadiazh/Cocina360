@@ -54,6 +54,103 @@
     .detail button.favorite-btn { margin-left: 0; margin-top: 10px; }
     .detail li { font-size: 1rem; }
   }
+
+  /* —— Chatbot de recetas —— */
+  .recipe-chat-wrapper {
+    margin-top: 40px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    max-height: 480px;
+  }
+
+  .recipe-chat-header {
+    padding: 10px 14px;
+    background: #0077cc;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .recipe-chat-header span.icon {
+    font-size: 1.2rem;
+  }
+
+  .recipe-chat-messages {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+    font-size: 0.95rem;
+  }
+
+  .chat-bubble {
+    max-width: 80%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+    line-height: 1.4;
+  }
+
+  .chat-bubble.user {
+    margin-left: auto;
+    background: #0077cc;
+    color: #fff;
+    border-bottom-right-radius: 2px;
+  }
+
+  .chat-bubble.bot {
+    margin-right: auto;
+    background: #e5e7eb;
+    color: #222;
+    border-bottom-left-radius: 2px;
+  }
+
+  .recipe-chat-footer {
+    padding: 8px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 6px;
+  }
+
+  .recipe-chat-footer textarea {
+    flex: 1;
+    resize: none;
+    min-height: 40px;
+    max-height: 80px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+  }
+
+  .recipe-chat-footer button {
+    padding: 0 14px;
+    border-radius: 6px;
+    border: none;
+    background: #0077cc;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .recipe-chat-footer button:hover {
+    background: #005fa3;
+  }
+
+  .chat-hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 4px 0 0 4px;
+  }
 </style>
 {% endblock %}
 
@@ -113,6 +210,34 @@
 
   <a href="{% url 'recipe_list' %}" class="back-link">← Back to Recipes</a>
 
+  <div class="recipe-chat-wrapper">
+    <div class="recipe-chat-header">
+      <span class="icon">👩‍🍳</span>
+      <span>Recipe Assistant</span>
+    </div>
+
+    <div id="recipe-chat-messages" class="recipe-chat-messages">
+      <div class="chat-bubble bot">
+        ¡Hola! Soy tu asistente de Cocina360. Puedes preguntarme cosas sobre esta receta:
+        - Cómo ajustar las porciones
+        - Tiempos de cocción
+        - Sustitución de ingredientes
+        - Consejos para que quede mejor
+        - Ideas para hacerla más saludable
+      </div>
+    </div>
+
+    <div class="recipe-chat-footer">
+      <textarea id="recipe-chat-input" placeholder="Escribe tu pregunta sobre la receta... (Enter para enviar)"></textarea>
+      <button id="recipe-chat-send" type="button">
+        Enviar
+      </button>
+    </div>
+    <p class="chat-hint">
+      Ejemplos: "¿Puedo hacer esta receta sin huevo?" · "¿Cómo la adapto para 2 personas?" · "¿Qué acompañamiento recomiendas?"
+    </p>
+  </div>
+
   {% if user.is_authenticated and user == recipe.creator %}
     <form action="{% url 'recipe_delete' pk=recipe.pk %}" method="get" style="margin-top: 30px;">
       <button type="submit" style="
@@ -125,4 +250,61 @@
     </form>
   {% endif %}
 </div>
+
+<script>
+  const recipeChatRecipeId = "{{ recipe.pk }}";
+
+  const chatBox = document.getElementById("recipe-chat-messages");
+  const chatInput = document.getElementById("recipe-chat-input");
+  const chatSend = document.getElementById("recipe-chat-send");
+
+  function addBubble(text, from = "bot") {
+    const div = document.createElement("div");
+    div.className = "chat-bubble " + (from === "user" ? "user" : "bot");
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    addBubble(message, "user");
+    chatInput.value = "";
+
+    try {
+      const res = await fetch("{% url 'recipe_chat' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: message,
+          recipe_id: recipeChatRecipeId
+        })
+      });
+
+      if (!res.ok) {
+        addBubble("Lo siento, hubo un error en el servidor.", "bot");
+        return;
+      }
+
+      const data = await res.json();
+      addBubble(data.reply || "No entendí la respuesta de la IA 😅", "bot");
+
+    } catch (e) {
+      addBubble("Error de conexión: " + e, "bot");
+    }
+  }
+
+  chatSend.addEventListener("click", sendMessage);
+
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+</script>
 {% endblock %}
