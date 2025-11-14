@@ -6,16 +6,17 @@ from django.views.decorators.http import require_POST
 from .forms import RegisterForm, RecipeForm, IngredientFormSet, StepFormSet
 from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponseBadRequest
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt  
+import json  
 
+from .ai_assistant import suggest_substitution
 def recipe_list(request):
-    # Obtener parámetros de búsqueda
     ingredient_query = request.GET.get('ingredient', '').strip()
     max_time = request.GET.get('max_time', '').strip()
     recipes = Recipe.objects.all()
     if ingredient_query:
-        # Filtrar recetas que tengan ingredientes que contengan el texto buscado (case insensitive)
         recipes = recipes.filter(
             ingredients__name__icontains=ingredient_query
         ).distinct()
@@ -142,7 +143,8 @@ def register(request):
 @require_POST
 def logout_view(request):
     logout(request)
-    return redirect('recipe_list')  # o la url que quieras
+    return redirect('recipe_list')  
+
 
 @login_required
 def recipe_create(request):
@@ -169,6 +171,7 @@ def recipe_create(request):
         'step_formset': step_formset,
     })
 
+
 @login_required
 def recipe_delete(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
@@ -179,16 +182,87 @@ def recipe_delete(request, pk):
         return redirect('recipe_list')
     return render(request, 'recipes/recipe_confirm_delete.html', {'recipe': recipe})
 
+
 @login_required
 def favorite_list(request):
     favorites = FavoriteRecipe.objects.filter(user=request.user).select_related('recipe')
     return render(request, 'recipes/favorite_list.html', {'favorites': favorites})
+
 
 @login_required
 def toggle_favorite(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
     favorite, created = FavoriteRecipe.objects.get_or_create(user=request.user, recipe=recipe)
     if not created:
-        # Ya existía, eliminar para quitar favorito
         favorite.delete()
     return redirect('recipe_detail', pk=pk)
+
+
+from openai import OpenAI
+client = OpenAI() 
+
+@csrf_exempt
+@require_POST
+def recipe_chat(request):
+    """
+    Chat general sobre la receta actual.
+
+    Espera JSON:
+      { "message": "texto del usuario", "recipe_id": 1 }
+
+    Responde JSON:
+      { "reply": "texto de la IA" }
+    """
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("JSON inválido")
+
+    message = data.get("message")
+    recipe_id = data.get("recipe_id")
+
+    if not message or not recipe_id:
+        return HttpResponseBadRequest("Faltan 'message' o 'recipe_id'")
+
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+
+    ingredientes_txt = ", ".join(
+        ing.name for ing in recipe.ingredients.all()
+    )
+    pasos_txt = "\n".join(
+        f"{i+1}. {step.description}"
+        for i, step in enumerate(recipe.steps.all())
+    )
+
+    prompt = f"""
+Eres un asistente de cocina amable y experto.
+El usuario está viendo esta receta de Cocina360 y te hará preguntas sobre ella.
+
+Receta:
+Nombre: {recipe.name}
+Ingredientes: {ingredientes_txt}
+Pasos:
+{pasos_txt}
+
+Reglas:
+- Responde SIEMPRE en español.
+- Sé breve y claro (3–6 líneas).
+- Puedes dar consejos adicionales (textura, sabor, tiempos, seguridad).
+- Si el usuario pide sustituir algo, explica riesgos y proporciones.
+- Si la pregunta no tiene que ver con la receta, responde de forma educada pero vuelve al tema de la receta.
+
+Pregunta del usuario: {message}
+Responde de forma directa, como si estuvieras hablando con la persona.
+"""
+
+    try:
+        response = client.responses.create(
+            model="gpt-5-nano",
+            input=prompt,
+            store=False
+        )
+        reply_text = response.output_text
+    except Exception as e:
+        reply_text = f"Ocurrió un error al consultar la IA: {e}"
+
+    return JsonResponse({"reply": reply_text})

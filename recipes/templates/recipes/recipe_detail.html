@@ -1,209 +1,310 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ recipe.name }} - Cocina 360</title>
-    <style>
-        /* Reset some default styles */
-        body, h1, h2, p, ul, ol, li, form {
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f9f9f9;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-            max-width: 800px;
-            margin: auto;
-        }
-        a {
-            color: #0077cc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #2c3e50;
-            border-bottom: 2px solid #0077cc;
-            padding-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        h2 {
-            margin-top: 30px;
-            margin-bottom: 15px;
-            color: #34495e;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 6px;
-        }
-        p {
-            font-size: 1rem;
-            margin-bottom: 10px;
-            color: #555;
-        }
-        ul, ol {
-            margin-left: 20px;
-            margin-bottom: 20px;
-        }
-        li {
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-        }
-        form {
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            cursor: pointer;
-            accent-color: #0077cc; /* modern browsers */
-        }
-        label.checkbox-label {
-            cursor: pointer;
-            flex: 1;
-            user-select: none;
-        }
-        label.completed {
-            text-decoration: line-through;
-            color: #999;
-            font-style: italic;
-        }
-        /* Favorite button */
-        form.favorite-form {
-            margin-left: 15px;
-        }
-        button.favorite-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 2rem;
-            color: gray;
-            transition: color 0.3s ease;
-            padding: 0;
-            margin-left: 15px;
-        }
-        button.favorite-btn.favorited {
-            color: red;
-        }
-        button.favorite-btn:hover {
-            color: #cc0000;
-        }
-        /* Button-like link for back */
-        .back-link {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 10px 18px;
-            background-color: #0077cc;
-            color: white;
-            border-radius: 4px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            background-color: #005fa3;
-        }
-        /* Responsive */
-        @media (max-width: 600px) {
-            body {
-                padding: 15px;
-            }
-            h1 {
-                font-size: 2rem;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            button.favorite-btn {
-                margin-left: 0;
-                margin-top: 10px;
-            }
-            li {
-                font-size: 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <h1>
-        {{ recipe.name }}
-        {% if user.is_authenticated %}
-            <form action="{% url 'toggle_favorite' pk=recipe.pk %}" method="post" class="favorite-form" title="Toggle Favorite">
-                {% csrf_token %}
-                {% if recipe.pk in favorite_recipe_ids %}
-                    <button type="submit" class="favorite-btn favorited" aria-label="Remove from favorites">♥</button>
-                {% else %}
-                    <button type="submit" class="favorite-btn" aria-label="Add to favorites">♡</button>
-                {% endif %}
-            </form>
+{% extends "base.html" %}
+{% block title %}{{ recipe.name }} - Cocina 360{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* —— Estilos encapsulados para esta página —— */
+  .detail { max-width: 800px; margin: 0 auto; line-height: 1.6; }
+  .detail a { color: #0077cc; text-decoration: none; }
+  .detail a:hover { text-decoration: underline; }
+
+  .detail h1 {
+    font-size: 2.2rem;
+    margin: 0 0 10px;
+    color: #2c3e50;
+    border-bottom: 2px solid #0077cc;
+    padding-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .detail h2 {
+    margin-top: 30px; margin-bottom: 15px;
+    color: #34495e; border-bottom: 1px solid #ddd; padding-bottom: 6px;
+  }
+  .detail p { font-size: 1rem; margin-bottom: 10px; color: #555; }
+
+  .detail ul, .detail ol { margin-left: 20px; margin-bottom: 20px; }
+  .detail li { margin-bottom: 12px; font-size: 1.05rem; display: flex; align-items: center; }
+
+  .detail form { display: flex; align-items: center; width: 100%; }
+  .detail input[type="checkbox"] {
+    width: 20px; height: 20px; margin-right: 12px; cursor: pointer; accent-color: #0077cc;
+  }
+  .detail label.checkbox-label { cursor: pointer; flex: 1; user-select: none; }
+  .detail label.completed { text-decoration: line-through; color: #999; font-style: italic; }
+
+  /* Favoritos */
+  .detail form.favorite-form { margin-left: 15px; }
+  .detail button.favorite-btn {
+    background: none; border: none; cursor: pointer; font-size: 2rem;
+    color: gray; transition: color 0.3s ease; padding: 0; margin-left: 15px;
+  }
+  .detail button.favorite-btn.favorited { color: red; }
+  .detail button.favorite-btn:hover { color: #cc0000; }
+
+  /* Botón volver */
+  .detail .back-link {
+    display: inline-block; margin-top: 30px; padding: 10px 18px;
+    background-color: #0077cc; color: white; border-radius: 4px; font-weight: 600;
+    transition: background-color 0.3s ease; text-decoration: none;
+  }
+  .detail .back-link:hover { background-color: #005fa3; }
+
+  @media (max-width: 600px) {
+    .detail h1 { font-size: 1.8rem; flex-direction: column; align-items: flex-start; }
+    .detail button.favorite-btn { margin-left: 0; margin-top: 10px; }
+    .detail li { font-size: 1rem; }
+  }
+
+  /* —— Chatbot de recetas —— */
+  .recipe-chat-wrapper {
+    margin-top: 40px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    max-height: 480px;
+  }
+
+  .recipe-chat-header {
+    padding: 10px 14px;
+    background: #0077cc;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .recipe-chat-header span.icon {
+    font-size: 1.2rem;
+  }
+
+  .recipe-chat-messages {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+    font-size: 0.95rem;
+  }
+
+  .chat-bubble {
+    max-width: 80%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+    line-height: 1.4;
+  }
+
+  .chat-bubble.user {
+    margin-left: auto;
+    background: #0077cc;
+    color: #fff;
+    border-bottom-right-radius: 2px;
+  }
+
+  .chat-bubble.bot {
+    margin-right: auto;
+    background: #e5e7eb;
+    color: #222;
+    border-bottom-left-radius: 2px;
+  }
+
+  .recipe-chat-footer {
+    padding: 8px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 6px;
+  }
+
+  .recipe-chat-footer textarea {
+    flex: 1;
+    resize: none;
+    min-height: 40px;
+    max-height: 80px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+  }
+
+  .recipe-chat-footer button {
+    padding: 0 14px;
+    border-radius: 6px;
+    border: none;
+    background: #0077cc;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .recipe-chat-footer button:hover {
+    background: #005fa3;
+  }
+
+  .chat-hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 4px 0 0 4px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail">
+  <h1>
+    {{ recipe.name }}
+    {% if user.is_authenticated %}
+      <form action="{% url 'toggle_favorite' pk=recipe.pk %}" method="post" class="favorite-form" title="Toggle Favorite">
+        {% csrf_token %}
+        {% if recipe.pk in favorite_recipe_ids %}
+          <button type="submit" class="favorite-btn favorited" aria-label="Remove from favorites">♥</button>
+        {% else %}
+          <button type="submit" class="favorite-btn" aria-label="Add to favorites">♡</button>
         {% endif %}
-    </h1>
-
-    <p><strong>Preparation Time:</strong> {{ recipe.preparation_time }} minutes</p>
-    <p><strong>Portions:</strong> 
-        {% if recipe.min_portion %}{{ recipe.min_portion }}{% endif %}
-        {% if recipe.max_portion %} - {{ recipe.max_portion }}{% endif %}
-    </p>
-
-    <h2>Ingredients</h2>
-    <ul>
-        {% for item in ingredients_with_status %}
-            <li>
-                <form action="{% url 'toggle_ingredient_completion' recipe_pk=recipe.pk ingredient_pk=item.ingredient.pk %}" method="post">
-                    {% csrf_token %}
-                    <input type="checkbox" id="ingredient-{{ item.ingredient.pk }}" name="completed" onchange="this.form.submit()" {% if item.completed %}checked{% endif %}>
-                    <label for="ingredient-{{ item.ingredient.pk }}" class="checkbox-label {% if item.completed %}completed{% endif %}">
-                        {{ item.ingredient.name }}
-                    </label>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
-
-    <h2>Steps</h2>
-    <ol>
-        {% for item in steps_with_status %}
-            <li>
-                <form action="{% url 'toggle_step_completion' recipe_pk=recipe.pk step_pk=item.step.pk %}" method="post">
-                    {% csrf_token %}
-                    <input type="checkbox" id="step-{{ item.step.pk }}" name="completed" onchange="this.form.submit()" {% if item.completed %}checked{% endif %}>
-                    <label for="step-{{ item.step.pk }}" class="checkbox-label {% if item.completed %}completed{% endif %}">
-                        {{ item.step.description }}
-                    </label>
-                </form>
-            </li>
-        {% endfor %}
-    </ol>
-
-    <a href="{% url 'recipe_list' %}" class="back-link">← Back to Recipes</a>
-    {% if user.is_authenticated and user == recipe.creator %}
-        <form action="{% url 'recipe_delete' pk=recipe.pk %}" method="get" style="margin-top: 30px;">
-            <button type="submit" style="
-                background-color: #cc3300;
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 6px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: background-color 0.3s ease;
-            " 
-            onmouseover="this.style.backgroundColor='#992200'" 
-            onmouseout="this.style.backgroundColor='#cc3300'">
-                Delete Recipe
-            </button>
-        </form>
+      </form>
     {% endif %}
-</body>
-</html>
+  </h1>
+
+  <p><strong>Preparation Time:</strong> {{ recipe.preparation_time }} minutes</p>
+  <p><strong>Portions:</strong>
+    {% if recipe.min_portion %}{{ recipe.min_portion }}{% endif %}
+    {% if recipe.max_portion %} - {{ recipe.max_portion }}{% endif %}
+  </p>
+
+  <h2>Ingredients</h2>
+  <ul>
+    {% for item in ingredients_with_status %}
+      <li>
+        <form action="{% url 'toggle_ingredient_completion' recipe_pk=recipe.pk ingredient_pk=item.ingredient.pk %}" method="post">
+          {% csrf_token %}
+          <input type="checkbox" id="ingredient-{{ item.ingredient.pk }}" name="completed"
+                 onchange="this.form.submit()" {% if item.completed %}checked{% endif %}>
+          <label for="ingredient-{{ item.ingredient.pk }}" class="checkbox-label {% if item.completed %}completed{% endif %}">
+            {{ item.ingredient.name }}
+          </label>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <h2>Steps</h2>
+  <ol>
+    {% for item in steps_with_status %}
+      <li>
+        <form action="{% url 'toggle_step_completion' recipe_pk=recipe.pk step_pk=item.step.pk %}" method="post">
+          {% csrf_token %}
+          <input type="checkbox" id="step-{{ item.step.pk }}" name="completed"
+                 onchange="this.form.submit()" {% if item.completed %}checked{% endif %}>
+          <label for="step-{{ item.step.pk }}" class="checkbox-label {% if item.completed %}completed{% endif %}">
+            {{ item.step.description }}
+          </label>
+        </form>
+      </li>
+    {% endfor %}
+  </ol>
+
+  <a href="{% url 'recipe_list' %}" class="back-link">← Back to Recipes</a>
+
+  <div class="recipe-chat-wrapper">
+    <div class="recipe-chat-header">
+      <span class="icon">👩‍🍳</span>
+      <span>Recipe Assistant</span>
+    </div>
+
+    <div id="recipe-chat-messages" class="recipe-chat-messages">
+      <div class="chat-bubble bot">
+        ¡Hola! Soy tu asistente de Cocina360. Puedes preguntarme cosas sobre esta receta:
+        - Cómo ajustar las porciones
+        - Tiempos de cocción
+        - Sustitución de ingredientes
+        - Consejos para que quede mejor
+        - Ideas para hacerla más saludable
+      </div>
+    </div>
+
+    <div class="recipe-chat-footer">
+      <textarea id="recipe-chat-input" placeholder="Escribe tu pregunta sobre la receta... (Enter para enviar)"></textarea>
+      <button id="recipe-chat-send" type="button">
+        Enviar
+      </button>
+    </div>
+    <p class="chat-hint">
+      Ejemplos: "¿Puedo hacer esta receta sin huevo?" · "¿Cómo la adapto para 2 personas?" · "¿Qué acompañamiento recomiendas?"
+    </p>
+  </div>
+
+  {% if user.is_authenticated and user == recipe.creator %}
+    <form action="{% url 'recipe_delete' pk=recipe.pk %}" method="get" style="margin-top: 30px;">
+      <button type="submit" style="
+          background-color: #cc3300; color: white; border: none; padding: 12px 24px;
+          border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease;"
+        onmouseover="this.style.backgroundColor='#992200'"
+        onmouseout="this.style.backgroundColor='#cc3300'">
+        Delete Recipe
+      </button>
+    </form>
+  {% endif %}
+</div>
+
+<script>
+  const recipeChatRecipeId = "{{ recipe.pk }}";
+
+  const chatBox = document.getElementById("recipe-chat-messages");
+  const chatInput = document.getElementById("recipe-chat-input");
+  const chatSend = document.getElementById("recipe-chat-send");
+
+  function addBubble(text, from = "bot") {
+    const div = document.createElement("div");
+    div.className = "chat-bubble " + (from === "user" ? "user" : "bot");
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    addBubble(message, "user");
+    chatInput.value = "";
+
+    try {
+      const res = await fetch("{% url 'recipe_chat' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: message,
+          recipe_id: recipeChatRecipeId
+        })
+      });
+
+      if (!res.ok) {
+        addBubble("Lo siento, hubo un error en el servidor.", "bot");
+        return;
+      }
+
+      const data = await res.json();
+      addBubble(data.reply || "No entendí la respuesta de la IA 😅", "bot");
+
+    } catch (e) {
+      addBubble("Error de conexión: " + e, "bot");
+    }
+  }
+
+  chatSend.addEventListener("click", sendMessage);
+
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+</script>
+{% endblock %}

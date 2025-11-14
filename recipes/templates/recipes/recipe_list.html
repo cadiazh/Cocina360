@@ -1,186 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cocina 360</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f9f9f9;
-            color: #333;
-            max-width: 700px;
-            margin: 40px auto;
-            padding: 0 20px 40px;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #0077cc;
-            padding-bottom: 10px;
-        }
-        h1 {
-            font-size: 2.5rem;
-            color: #2c3e50;
-            margin: 0;
-        }
-        nav a {
-            margin-left: 15px;
-            font-weight: 600;
-            color: #0077cc;
-            text-decoration: none;
-            font-size: 1rem;
-            padding: 6px 12px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-        nav a:hover {
-            background-color: #e0f0ff;
-        }
-        .add-recipe-btn {
-            background-color: #28a745;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            text-decoration: none;
-            margin-left: 20px;
-            transition: background-color 0.3s ease;
-        }
-        .add-recipe-btn:hover {
-            background-color: #1e7e34;
-        }
-        ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        li {
-            background: white;
-            margin-bottom: 12px;
-            padding: 15px 20px;
-            border-radius: 6px;
-            box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
-            transition: box-shadow 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        li:hover {
-            box-shadow: 0 4px 10px rgb(0 0 0 / 0.15);
-        }
-        li a.recipe-link {
-            color: #0077cc;
-            font-weight: 600;
-            font-size: 1.2rem;
-            text-decoration: none;
-            flex-grow: 1;
-        }
-        li a.recipe-link:hover {
-            text-decoration: underline;
-        }
-        form.favorite-form {
-            margin-left: 15px;
-        }
-        button.favorite-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: gray;
-            transition: color 0.3s ease;
-        }
-        button.favorite-btn.favorited {
-            color: red;
-        }
-        button.favorite-btn:hover {
-            color: #cc0000;
-        }
-        form.favorite-form button:focus {
-            outline: none;
-        }
-        form.search-form {
-            margin-bottom: 20px;
-        }
-        form.search-form input[type="text"],
-        form.search-form input[type="number"] {
-            padding: 6px 10px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        form.search-form button {
-            padding: 6px 14px;
-            font-size: 1rem;
-            border: none;
-            background-color: #0077cc;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        form.search-form button:hover {
-            background-color: #005fa3;
-        }
-        a.clear-filters {
-            margin-left: 15px;
-            font-size: 0.9rem;
-            color: #555;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>Cocina 360</h1>
-        <nav>
+{% extends "base.html" %}
+{% block title %}Cocina 360 — Recetas{% endblock %}
+
+{% block content %}
+<form method="get" action="{% url 'recipe_list' %}" class="search-form">
+    <input type="text" name="ingredient" placeholder="Search by ingredient" value="{{ ingredient_query }}">
+    <input type="number" step="0.1" min="0" name="max_time" placeholder="Max preparation time (min)" value="{{ max_time }}">
+    <button type="submit">Search</button>
+    {% if ingredient_query or max_time %}
+        <a href="{% url 'recipe_list' %}" class="clear-filters">Clear filters</a>
+    {% endif %}
+</form>
+
+<ul>
+    {% for recipe in recipes %}
+        <li>
+            <a href="{% url 'recipe_detail' pk=recipe.pk %}" class="recipe-link">{{ recipe.name }}</a>
             {% if user.is_authenticated %}
-                <span>Welcome, {{ user.username }}!</span>
-                <a href="{% url 'recipe_create' %}">+ New Recipe</a>
-                <a href="{% url 'favorite_list' %}">My Favorites</a>
-                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                <form action="{% url 'toggle_favorite' pk=recipe.pk %}" method="post" class="favorite-form" title="Toggle Favorite">
                     {% csrf_token %}
-                    <button type="submit" style="background:none; border:none; padding:0; cursor:pointer; color:#0077cc; text-decoration:underline; font-size:1rem;">
-                        Logout
-                    </button>
+                    {% if recipe.pk in favorite_recipe_ids %}
+                        <button type="submit" class="favorite-btn favorited" aria-label="Remove from favorites">♥</button>
+                    {% else %}
+                        <button type="submit" class="favorite-btn" aria-label="Add to favorites">♡</button>
+                    {% endif %}
                 </form>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'register' %}">Register</a>
             {% endif %}
-        </nav>
-    </header>
-
-    <form method="get" action="{% url 'recipe_list' %}" class="search-form">
-        <input type="text" name="ingredient" placeholder="Search by ingredient" value="{{ ingredient_query }}">
-        <input type="number" step="0.1" min="0" name="max_time" placeholder="Max preparation time (min)" value="{{ max_time }}">
-        <button type="submit">Search</button>
-        {% if ingredient_query or max_time %}
-            <a href="{% url 'recipe_list' %}" class="clear-filters">Clear filters</a>
-        {% endif %}
-    </form>
-
-    <ul>
-        {% for recipe in recipes %}
-            <li>
-                <a href="{% url 'recipe_detail' pk=recipe.pk %}" class="recipe-link">{{ recipe.name }}</a>
-                {% if user.is_authenticated %}
-                    <form action="{% url 'toggle_favorite' pk=recipe.pk %}" method="post" class="favorite-form" title="Toggle Favorite">
-                        {% csrf_token %}
-                        {% if recipe.pk in favorite_recipe_ids %}
-                            <button type="submit" class="favorite-btn favorited" aria-label="Remove from favorites">♥</button>
-                        {% else %}
-                            <button type="submit" class="favorite-btn" aria-label="Add to favorites">♡</button>
-                        {% endif %}
-                    </form>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li>No recipes found.</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+        </li>
+    {% empty %}
+        <li>No recipes found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

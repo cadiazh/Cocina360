@@ -1,31 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>My Favorite Recipes - Cocina 360</title>
-</head>
-<body>
-    <header>
-        <h1>My Favorite Recipes</h1>
-        <nav>
-            <a href="{% url 'recipe_list' %}">All Recipes</a>
-            <a href="{% url 'recipe_create' %}">+ New Recipe</a>
-            <a href="{% url 'logout' %}">Logout</a>
-        </nav>
-    </header>
+{% extends "base.html" %}
+{% block title %}Mis favoritos - Cocina 360{% endblock %}
 
-    <ul>
-        {% for fav in favorites %}
-            <li>
-                <a href="{% url 'recipe_detail' pk=fav.recipe.pk %}">{{ fav.recipe.name }}</a>
-                <form action="{% url 'toggle_favorite' pk=fav.recipe.pk %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" style="color: red; border:none; background:none; cursor:pointer;" title="Remove from favorites">Remove</button>
-                </form>
-            </li>
-        {% empty %}
-            <li>You have no favorite recipes yet.</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% block content %}
+<h2 style="margin:0 0 16px; color:#2c3e50;">Mis favoritos</h2>
+
+<form method="get" action="{% url 'favorite_list' %}" class="search-form">
+  <input type="text" name="q" placeholder="Buscar en favoritos" value="{{ request.GET.q }}">
+  <button type="submit">Buscar</button>
+  {% if request.GET.q %}
+    <a class="clear-filters" href="{% url 'favorite_list' %}">Limpiar</a>
+  {% endif %}
+</form>
+
+<ul>
+  {% for fav in favorites %}
+    <li>
+      <a href="{% url 'recipe_detail' pk=fav.recipe.pk %}" class="recipe-link">{{ fav.recipe.name }}</a>
+      {% if user.is_authenticated %}
+        <form action="{% url 'toggle_favorite' pk=fav.recipe.pk %}" method="post" class="favorite-form" title="Quitar de favoritos">
+          {% csrf_token %}
+          <button type="submit" class="favorite-btn favorited" aria-label="Quitar de favoritos">♥</button>
+        </form>
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>
+      Aún no tienes recetas en favoritos. <a href="{% url 'recipe_list' %}">Explora recetas</a> y guarda tus favoritas.
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
