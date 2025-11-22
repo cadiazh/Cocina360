@@ -7,9 +7,18 @@ class Recipe(models.Model):
     min_portion = models.IntegerField(null=True, blank=True)
     max_portion = models.IntegerField(null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes')
+    difficulty = models.CharField(max_length=50, default="Fácil")
 
-    def __str__(self):
-        return self.name
+
+@property
+def difficulty(self):
+        
+        if self.preparation_time > 60:
+            return 'Difícil'
+        return 'Fácil'
+
+def __str__(self):
+    return self.name
 
 class Ingredient(models.Model):
     recipe = models.ForeignKey(Recipe, related_name='ingredients', on_delete=models.CASCADE)

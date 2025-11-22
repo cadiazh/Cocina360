@@ -13,8 +13,14 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv("key.env")
+USE_I18N = True
+LANGUAGE_CODE = 'es'
+load_dotenv()
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),  
+]
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -58,8 +64,8 @@ ROOT_URLCONF = 'cocina360.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["cocina360/recipes/templates", "cocina360/templates"],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'templates'], 
+        'APP_DIRS': True,  
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',

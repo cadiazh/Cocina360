@@ -1,10 +1,12 @@
 {% load static %}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Cocina 360{% endblock %}</title>
+    <title>{% block title %}C o c i n a 360°{% endblock %}</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,6 +16,7 @@
             margin: 40px auto;
             padding: 0 20px 40px;
         }
+
         header {
             display: flex;
             justify-content: space-between;
@@ -22,16 +25,26 @@
             border-bottom: 3px solid #0077cc;
             padding-bottom: 10px;
         }
+
         .brand {
-            display: flex; align-items: center; gap: 10px;
-            text-decoration: none; color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
         }
-        .brand img { height: 36px; width: auto; }
+
+        .brand img {
+            height: 36px;
+            width: auto;
+        }
+
         h1 {
-            font-size: 2.0rem;   /* un poco más compacto */
+            font-size: 2.0rem;
             color: #2c3e50;
             margin: 0;
         }
+
         nav a {
             margin-left: 15px;
             font-weight: 600;
@@ -42,9 +55,11 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
         }
-        nav a:hover { background-color: #e0f0ff; }
 
-        /* Botón “Nuevo” verde (lo usas desde recipe_list o donde quieras) */
+        nav a:hover {
+            background-color: #e0f0ff;
+        }
+
         .add-recipe-btn {
             background-color: #28a745;
             color: white;
@@ -55,10 +70,16 @@
             margin-left: 20px;
             transition: background-color 0.3s ease;
         }
-        .add-recipe-btn:hover { background-color: #1e7e34; }
 
-        /* Estilos que pueden reutilizar varias páginas */
-        ul { list-style: none; padding-left: 0; }
+        .add-recipe-btn:hover {
+            background-color: #1e7e34;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
         li {
             background: white;
             margin-bottom: 12px;
@@ -66,9 +87,15 @@
             border-radius: 6px;
             box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
             transition: box-shadow 0.3s ease;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        li:hover { box-shadow: 0 4px 10px rgb(0 0 0 / 0.15); }
+
+        li:hover {
+            box-shadow: 0 4px 10px rgb(0 0 0 / 0.15);
+        }
+
         li a.recipe-link {
             color: #0077cc;
             font-weight: 600;
@@ -76,36 +103,127 @@
             text-decoration: none;
             flex-grow: 1;
         }
-        li a.recipe-link:hover { text-decoration: underline; }
-        form.favorite-form { margin-left: 15px; }
-        button.favorite-btn {
-            background: none; border: none; cursor: pointer;
-            font-size: 1.5rem; color: gray; transition: color 0.3s ease;
+
+        li a.recipe-link:hover {
+            text-decoration: underline;
         }
-        button.favorite-btn.favorited { color: red; }
-        button.favorite-btn:hover { color: #cc0000; }
-        form.favorite-form button:focus { outline: none; }
+
+        form.favorite-form {
+            margin-left: 15px;
+        }
+
+        button.favorite-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: gray;
+            transition: color 0.3s ease;
+        }
+
+        button.favorite-btn.favorited {
+            color: red;
+        }
+
+        button.favorite-btn:hover {
+            color: #cc0000;
+        }
+
+        form.favorite-form button:focus {
+            outline: none;
+        }
 
         /* Buscador / filtros reutilizable */
-        form.search-form { margin-bottom: 20px; }
+        form.search-form {
+            margin-bottom: 20px;
+        }
+
         form.search-form input[type="text"],
         form.search-form input[type="number"] {
-            padding: 6px 10px; margin-right: 10px;
-            border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;
+            padding: 6px 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
         }
+
         form.search-form button {
-            padding: 6px 14px; font-size: 1rem; border: none;
-            background-color: #0077cc; color: white; border-radius: 4px; cursor: pointer;
+            padding: 6px 14px;
+            font-size: 1rem;
+            border: none;
+            background-color: #0077cc;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        form.search-form button:hover { background-color: #005fa3; }
+
+        form.search-form button:hover {
+            background-color: #005fa3;
+        }
+
         a.clear-filters {
-            margin-left: 15px; font-size: 0.9rem; color: #555;
-            text-decoration: underline; cursor: pointer;
+            margin-left: 15px;
+            font-size: 0.9rem;
+            color: #555;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .admin-dashboard {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-actions h3 {
+            margin-top: 20px;
+            color: #0077cc;
+        }
+
+        .admin-actions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .admin-actions ul li {
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .admin-actions ul li a {
+            color: #0077cc;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .admin-actions ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .edit-recipe-btn,
+        .delete-recipe-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-recipe-btn:hover,
+        .delete-recipe-btn:hover {
+            background-color: #1e7e34;
         }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
+
 <body>
     <header>
         <a class="brand" href="{% url 'recipe_list' %}">
@@ -115,18 +233,24 @@
 
         <nav>
             {% if user.is_authenticated %}
-                <span>Welcome, {{ user.username }}!</span>
-                <a href="{% url 'recipe_create' %}">+ New Recipe</a>
-                <a href="{% url 'favorite_list' %}">My Favorites</a>
-                <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" style="background:none; border:none; padding:0; cursor:pointer; color:#0077cc; text-decoration:underline; font-size:1rem;">
-                        Logout
-                    </button>
-                </form>
+            <span>Welcome, {{ user.username }}!</span>
+            <a href="{% url 'recipe_create' %}">+ New Recipe</a>
+            <a href="{% url 'favorite_list' %}">My Favorites</a>
+
+            {% if user.is_superuser %}
+            <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a> <!-- Solo para administradores -->
+            {% endif %}
+
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit"
+                    style="background:none; border:none; padding:0; cursor:pointer; color:#0077cc; text-decoration:underline; font-size:1rem;">
+                    Logout
+                </button>
+            </form>
             {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
             {% endif %}
         </nav>
     </header>
@@ -134,4 +258,5 @@
     {% block content %}{% endblock %}
     {% block extra_scripts %}{% endblock %}
 </body>
+
 </html>

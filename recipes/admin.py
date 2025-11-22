@@ -11,7 +11,9 @@ class StepInline(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'preparation_time', 'min_portion', 'max_portion')
+    list_display = ('name', 'preparation_time', 'difficulty', 'creator')
+    search_fields = ('name', 'ingredients__name')
+    actions = ['delete_selected']
     inlines = [IngredientInline, StepInline]
 
 @admin.register(Ingredient)
@@ -33,3 +35,4 @@ class UserIngredientCompletionAdmin(admin.ModelAdmin):
 class UserStepCompletionAdmin(admin.ModelAdmin):
     list_display = ('user', 'step', 'completed')
     list_filter = ('user', 'completed')
+

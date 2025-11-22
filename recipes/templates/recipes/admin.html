@@ -1,0 +1,23 @@
+<h1>Panel de Administración - Cocina 360</h1>
+
+<h2>Recetas</h2>
+<ul>
+    {% for recipe in recipes %}
+        <li>{{ recipe.name }} - <a href="{% url 'recipe_edit' pk=recipe.pk %}">Editar</a> | 
+            <a href="{% url 'recipe_delete' pk=recipe.pk %}">Eliminar</a></li>
+    {% endfor %}
+</ul>
+
+<h2>Ingredientes</h2>
+<ul>
+    {% for ingredient in ingredients %}
+        <li>{{ ingredient.name }} - <a href="{% url 'ingredient_edit' pk=ingredient.pk %}">Editar</a></li>
+    {% endfor %}
+</ul>
+
+<h2>Pasos</h2>
+<ul>
+    {% for step in steps %}
+        <li>{{ step.description }} - <a href="{% url 'step_edit' pk=step.pk %}">Editar</a></li>
+    {% endfor %}
+</ul>
