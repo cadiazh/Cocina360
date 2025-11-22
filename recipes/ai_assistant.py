@@ -1,15 +1,29 @@
 import os
 import json
-from openai import OpenAI
+from openai import OpenAI, OpenAIError
 
-client = OpenAI()
 
 def suggest_substitution(missing, substitute, recipe_title=None, recipe_text=None):
     """
     Llama al modelo GPT-5-nano para sugerir sustituciones culinarias.
-    Devuelve un dict con:
-    viable, explicacion, proporcion, ajustes, riesgos, confianza
+    Si no hay API Key disponible, devuelve un JSON indicando indisponibilidad.
     """
+
+    # 1. Verificar si la API Key existe
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if not api_key:
+        return {
+            "viable": "no disponible",
+            "explicacion": "El servicio de IA no está disponible por el momento (API key no configurada).",
+            "proporcion": "N/A",
+            "ajustes": "N/A",
+            "riesgos": "N/A",
+            "confianza": 0.0
+        }
+
+    # 2. Crear cliente SOLO si hay API Key
+    client = OpenAI(api_key=api_key)
 
     prompt = f"""
 Eres un chef experto en sustituciones de ingredientes.
@@ -32,10 +46,22 @@ Responde SOLO un JSON válido con este formato EXACTO:
 }}
 """
 
-    response = client.responses.create(
-        model="gpt-5-nano",
-        input=prompt,
-        response_format="json"
-    )
+    try:
+        response = client.responses.create(
+            model="gpt-5-nano",
+            input=prompt,
+            response_format="json"
+        )
 
-    return json.loads(response.output_text)
+        return json.loads(response.output_text)
+
+    except OpenAIError as e:
+        # 3. Si OpenAI falla (límite, servidor caído, etc.)
+        return {
+            "viable": "no disponible",
+            "explicacion": f"El servicio de IA no está disponible por el momento. Error: {str(e)}",
+            "proporcion": "N/A",
+            "ajustes": "N/A",
+            "riesgos": "N/A",
+            "confianza": 0.0
+        }

@@ -1,137 +1,180 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Cocina 360{% endblock %}</title>
+    <meta charset="UTF-8">
+    <title>Cocina 360</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f9f9f9;
-            color: #333;
-            max-width: 700px;
-            margin: 40px auto;
-            padding: 0 20px 40px;
+            font-family: 'Inter', sans-serif;
+            background: #f3f4f6;
+            margin: 0;
+            padding: 0;
         }
-        header {
+
+        /* --- TOP NAVBAR --- */
+        .top-nav {
+            width: 100%;
+            background: white;
+            padding: 14px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #0077cc;
-            padding-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
+
+        /* Logo */
         .brand {
-            display: flex; align-items: center; gap: 10px;
-            text-decoration: none; color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
         }
-        .brand img { height: 36px; width: auto; }
-        h1 {
-            font-size: 2.0rem;   /* un poco más compacto */
-            color: #2c3e50;
+
+        .brand img {
+            height: 40px;
+            width: auto;
+        }
+
+        .brand h1 {
+            font-size: 1.6rem;
             margin: 0;
+            color: #2c3e50;
         }
-        nav a {
-            margin-left: 15px;
+
+        /* Search bar */
+        .search-box {
+            width: 350px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 40px;
+            border: 1px solid #ddd;
+            font-size: 15px;
+        }
+
+        /* Right side menu */
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .top-nav-right a,
+        .top-nav-right form button {
             font-weight: 600;
-            color: #0077cc;
+            color: #2563eb;
             text-decoration: none;
             font-size: 1rem;
-            padding: 6px 12px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
+            background: none;
+            border: none;
+            cursor: pointer;
         }
-        nav a:hover { background-color: #e0f0ff; }
 
-        /* Botón “Nuevo” verde (lo usas desde recipe_list o donde quieras) */
-        .add-recipe-btn {
-            background-color: #28a745;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            text-decoration: none;
-            margin-left: 20px;
-            transition: background-color 0.3s ease;
+        .top-nav-right a:hover,
+        .top-nav-right form button:hover {
+            text-decoration: underline;
         }
-        .add-recipe-btn:hover { background-color: #1e7e34; }
 
-        /* Estilos que pueden reutilizar varias páginas */
-        ul { list-style: none; padding-left: 0; }
-        li {
+        /* --- PAGE LAYOUT --- */
+        .layout {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
             background: white;
-            margin-bottom: 12px;
-            padding: 15px 20px;
-            border-radius: 6px;
-            box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
-            transition: box-shadow 0.3s ease;
-            display: flex; align-items: center; justify-content: space-between;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 100px;
+            height: fit-content;
         }
-        li:hover { box-shadow: 0 4px 10px rgb(0 0 0 / 0.15); }
-        li a.recipe-link {
-            color: #0077cc;
-            font-weight: 600;
-            font-size: 1.2rem;
-            text-decoration: none;
-            flex-grow: 1;
-        }
-        li a.recipe-link:hover { text-decoration: underline; }
-        form.favorite-form { margin-left: 15px; }
-        button.favorite-btn {
-            background: none; border: none; cursor: pointer;
-            font-size: 1.5rem; color: gray; transition: color 0.3s ease;
-        }
-        button.favorite-btn.favorited { color: red; }
-        button.favorite-btn:hover { color: #cc0000; }
-        form.favorite-form button:focus { outline: none; }
 
-        /* Buscador / filtros reutilizable */
-        form.search-form { margin-bottom: 20px; }
-        form.search-form input[type="text"],
-        form.search-form input[type="number"] {
-            padding: 6px 10px; margin-right: 10px;
-            border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;
+        /* Main card */
+        .card {
+            flex: 1;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
         }
-        form.search-form button {
-            padding: 6px 14px; font-size: 1rem; border: none;
-            background-color: #0077cc; color: white; border-radius: 4px; cursor: pointer;
-            transition: background-color 0.3s ease;
+
+        /* General link style */
+        a {
+            color: #2563eb;
+            text-decoration: none;
         }
-        form.search-form button:hover { background-color: #005fa3; }
-        a.clear-filters {
-            margin-left: 15px; font-size: 0.9rem; color: #555;
-            text-decoration: underline; cursor: pointer;
+
+        a:hover {
+            text-decoration: underline;
         }
+
     </style>
+
     {% block extra_head %}{% endblock %}
 </head>
+
 <body>
-    <header>
+
+    <!-- TOP NAVBAR -->
+    <div class="top-nav">
+
+        <!-- LEFT SIDE (Logo) -->
         <a class="brand" href="{% url 'recipe_list' %}">
-            <img src="{% static 'images/logo.png' %}" alt="Cocina 360" class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Cocina 360">
             <h1>Cocina360</h1>
         </a>
 
-        <nav>
+        <!-- CENTER (Search bar) -->
+        <div class="search-box">
+            <form method="get" action="{% url 'recipe_list' %}" class="search-box">
+                <input type="text" 
+                    name="q" 
+                    placeholder="Buscar recetas…" 
+                    value="{{ query|default:'' }}">
+            </form>
+        </div>
+
+        <!-- RIGHT (User controls) -->
+        <div class="top-nav-right">
             {% if user.is_authenticated %}
-                <span>Welcome, {{ user.username }}!</span>
-                <a href="{% url 'recipe_create' %}">+ New Recipe</a>
-                <a href="{% url 'favorite_list' %}">My Favorites</a>
+                <span>Hola, {{ user.username }}</span>
+                <a href="{% url 'recipe_create' %}">+ Nueva Receta</a>
+                <a href="{% url 'favorite_list' %}">Favoritos</a>
+
                 <form action="{% url 'logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" style="background:none; border:none; padding:0; cursor:pointer; color:#0077cc; text-decoration:underline; font-size:1rem;">
-                        Logout
-                    </button>
+                    <button type="submit">Cerrar Sesión</button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'register' %}">Register</a>
+                <a href="{% url 'login' %}">Iniciar Sesión</a>
+                <a href="{% url 'register' %}">Registrarse</a>
             {% endif %}
-        </nav>
-    </header>
+        </div>
+    </div>
 
-    {% block content %}{% endblock %}
-    {% block extra_scripts %}{% endblock %}
+
+    {% block content %}
+    {% endblock %}
+
+    {% block extra_scripts %}
+    {% endblock %}
+
 </body>
 </html>

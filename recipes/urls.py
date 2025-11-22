@@ -13,7 +13,8 @@ urlpatterns = [
     path('accounts/register/', views.register, name='register'),
     path('recipes/new/', views.recipe_create, name='recipe_create'),
     path('api/recipe_chat/', views.recipe_chat, name='recipe_chat'),
-
-    
-
+    path("enviar-receta/", views.enviar_receta, name="enviar_receta"),
+    path("recibir-json/", views.recibir_json, name="recibir_json"),
+    path("historial-json/", views.ver_historial, name="ver_historial_json"),
+    path("recibir-json-pdf/", views.recibir_json_pdf),
 ]
