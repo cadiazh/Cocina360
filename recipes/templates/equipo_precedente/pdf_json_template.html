@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        h1 { color: #333; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+        pre {
+            background: #f4f4f4;
+            color: #222;
+            padding: 15px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            font-size: 10pt;
+            /* Estos estilos ayudan a que el JSON se vea bien en el PDF */
+        }
+        .header {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Historial JSON #{{ id }}</h1>
+        <p>Documento generado el: {% now "d M Y H:i" %}</p>
+    </div>
+    
+    <h2>Contenido del JSON:</h2>
+
+    <pre>{{ json_data|safe }}</pre>
+
+</body>
+</html>

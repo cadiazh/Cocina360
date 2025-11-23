@@ -1,54 +1,67 @@
 import os
 import json
-import openai
-from dotenv import load_dotenv
+from openai import OpenAI, OpenAIError
 
-# Cargar las variables de entorno desde el archivo .env
-load_dotenv()
-
-# Obtener la clave de la API de OpenAI desde las variables de entorno
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def suggest_substitution(missing, substitute, recipe_title=None, recipe_text=None):
     """
     Llama al modelo GPT-5-nano para sugerir sustituciones culinarias.
-    Devuelve un dict con:
-    viable, explicacion, proporcion, ajustes, riesgos, confianza
+    Si no hay API Key disponible, devuelve un JSON indicando indisponibilidad.
     """
+
+    # 1. Verificar si la API Key existe
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if not api_key:
+        return {
+            "viable": "no disponible",
+            "explicacion": "El servicio de IA no está disponible por el momento (API key no configurada).",
+            "proporcion": "N/A",
+            "ajustes": "N/A",
+            "riesgos": "N/A",
+            "confianza": 0.0
+        }
+
+    # 2. Crear cliente SOLO si hay API Key
+    client = OpenAI(api_key=api_key)
 
     prompt = f"""
-    Eres un chef experto en sustituciones de ingredientes.
+Eres un chef experto en sustituciones de ingredientes.
 
-    Usuario pregunta:
-    ¿Puedo sustituir "{missing}" por "{substitute}" en la receta "{recipe_title or "sin título"}"?
+Usuario pregunta:
+¿Puedo sustituir "{missing}" por "{substitute}" en la receta "{recipe_title or "sin título"}"?
 
-    Detalles de receta:
-    {recipe_text or "No se especifican más detalles."}
+Detalles de receta:
+{recipe_text or "No se especifican más detalles."}
 
-    Responde SOLO un JSON válido con este formato EXACTO:
+Responde SOLO un JSON válido con este formato EXACTO:
 
-    {{
-      "viable": "si" | "no" | "depende",
-      "explicacion": "texto en español",
-      "proporcion": "formato de sustitución recomendado",
-      "ajustes": "ajustes necesarios en sabor, textura o técnica",
-      "riesgos": "posibles problemas",
-      "confianza": 0.0
-    }}
-    """
+{{
+  "viable": "si" | "no" | "depende",
+  "explicacion": "texto en español",
+  "proporcion": "formato de sustitución recomendado",
+  "ajustes": "ajustes necesarios en sabor, textura o técnica",
+  "riesgos": "posibles problemas",
+  "confianza": 0.0
+}}
+"""
 
-    # Realizar la consulta a OpenAI
     try:
-        response = openai.Completion.create(
-            model="text-davinci-003",  
-            prompt=prompt,
-            max_tokens=500, 
-            temperature=0.7
+        response = client.responses.create(
+            model="gpt-5-nano",
+            input=prompt,
+            response_format="json"
         )
 
-        response_text = response.choices[0].text.strip()
-        return json.loads(response_text)
+        return json.loads(response.output_text)
 
-    except Exception as e:
-        print(f"Error al llamar a la API de OpenAI: {e}")
-        return None
+    except OpenAIError as e:
+        # 3. Si OpenAI falla (límite, servidor caído, etc.)
+        return {
+            "viable": "no disponible",
+            "explicacion": f"El servicio de IA no está disponible por el momento. Error: {str(e)}",
+            "proporcion": "N/A",
+            "ajustes": "N/A",
+            "riesgos": "N/A",
+            "confianza": 0.0
+        }

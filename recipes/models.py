@@ -61,3 +61,11 @@ class FavoriteRecipe(models.Model):
         unique_together = ('user', 'recipe')
     def __str__(self):
         return f"{self.user.username} - {self.recipe.name}"
+    
+
+class JsonHistory(models.Model):
+    content = models.JSONField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]

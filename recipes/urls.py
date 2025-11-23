@@ -27,5 +27,10 @@ urlpatterns = [
     # API de chat de receta (para interactuar con IA)
     path('api/recipe_chat/', views.recipe_chat, name='recipe_chat'),
 
+    path("enviar-receta/", views.enviar_receta, name="enviar_receta"),
+    path("historial-json/", views.ver_historial, name="ver_historial_json"),
+    path("recibir-json-pdf/", views.recibir_json_pdf, name="recibir_json_pdf"),
+    path("json/<int:id>/", views.mostrar_json_pdf, name='mostrar_json_pdf'),
+    path('json/<int:id>/pdf/', views.descargar_json_pdf, name='descargar_json_pdf'),
    ]
 

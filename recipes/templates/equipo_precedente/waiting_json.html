@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Esperando JSON</title>
+
+    <meta http-equiv="refresh" content="4"> 
+
+    <style>
+        body { text-align: center; background: #f4f4f4; font-family: Arial; }
+        .url-box {
+            background: white;
+            padding: 10px 20px;
+            display: inline-block;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+        }
+        img { width: 160px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>⏳ Esperando JSON...</h1>
+    <img src="{% static 'images/kirb-kirby.gif' %}">
+    
+    <div class="url-box">
+        URL de Recepción:<br>
+        <pre>{{ request.build_absolute_uri }}</pre>
+    </div>
+
+</body>
+</html>

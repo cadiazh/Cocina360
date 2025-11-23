@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Enviar JSON</title>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: #f3f4f6;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            width: 360px;
+            text-align: center;
+        }
+
+        h2 {
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            background: #ff7a18;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #ff8e42;
+        }
+
+        .gif-box {
+            margin-top: 25px;
+        }
+
+        .gif {
+            width: 150px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Enviar JSON aleatorio</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="destino" placeholder="URL destino (ej: http://192.168.1.10:8080/recibir/)" required>
+
+            <button class="btn-primary">Enviar</button>
+        </form>
+
+        <div class="gif-box">
+
+            <img class="gif" src="{% static 'images/enviar.gif' %}" alt="Decoración">
+        </div>
+    </div>
+</body>
+</html>
