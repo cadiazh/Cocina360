@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="layout">
+
+    <!-- SIDEBAR IZQUIERDA -->
+    <div class="sidebar">
+        <img src="{% static 'images/logo.png' %}" style="width: 120px; margin-bottom: 10px;">
+        <h2 style="margin-top: 0;">Cocina 360</h2>
+
+        <h3>📚 Mis favoritos</h3>
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'favorite_list' %}">Ver lista</a>
+        {% else %}
+            <p>Para ver favoritos <a href="{% url 'login' %}">inicia sesión</a>.</p>
+        {% endif %}
+    </div>
+
+    <!-- CENTRO: LISTADO DE RECETAS -->
+    <div style="flex: 1;">
+        <div class="recipe-list">
+            {% for recipe in recipes %}
+                <div class="recipe-card">
+                    <!-- enlace a detalle de la receta -->
+                    <a href="{% url 'recipe_detail' pk=recipe.pk %}"
+                       style="text-decoration:none; color:black;">
+                        <h3 style="margin-top:0;">{{ recipe.name }}</h3>
+                        <p>⏱ {{ recipe.preparation_time }} min</p>
+                    </a>
+
+                    <!-- botón para descargar PDF de esa receta -->
+                    <a href="{% url 'recipe_pdf' recipe.pk %}"
+                       class="btn btn-secondary"
+                       style="margin-top: 8px; display:inline-block;">
+                        Descargar PDF
+                    </a>
+                </div>
+            {% empty %}
+                <p>No se encontraron recetas.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- PANEL DE FILTROS -->
+    <div class="card" style="width:260px; position: sticky; top: 100px; height: fit-content;">
+        <h2>Filtros</h2>
+
+        <form method="get">
+            <label>Ingrediente contiene:</label>
+            <input type="text" name="ingredient" value="{{ ingredient_query }}">
+
+            <br><br>
+
+            <label>Máx. tiempo (min)</label>
+            <input type="number" name="max_time" value="{{ max_time }}">
+
+            <br><br>
+
+            <button class="btn-primary" style="width:100%;">Aplicar</button>
+
+            <br><br>
+            <a href="{% url 'recipe_list' %}">Limpiar filtro</a>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

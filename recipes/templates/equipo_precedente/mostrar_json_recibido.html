@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* ... (tus estilos existentes) ... */
+        
+        /* Estilo para el botón de descarga (azul, por ejemplo) */
+        .download-button { 
+            background:#337ab7; 
+            margin-left: 15px; 
+            padding:10px 20px;
+            color:white;
+            border-radius:8px;
+            text-decoration:none;
+            font-weight:bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>✅ JSON Recibido #{{ id }}</h1>
+
+    <pre>{{ json_data|safe }}</pre>
+
+    <div>
+        <a href="{% url 'recibir_json_pdf' %}">⬅ Volver a esperar más JSON</a>
+        
+        <a href="{% url 'descargar_json_pdf' id=id %}" class="download-button" target="_blank">
+            ⬇ Descargar como PDF
+        </a>
+    </div>
+
+</body>
+</html>

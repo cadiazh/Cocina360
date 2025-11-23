@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="layout">
+
+    <div class="sidebar">
+        <a href="{% url 'recipe_list' %}">← Volver</a>
+        <h2>Mis favoritos</h2>
+    </div>
+
+    <div style="flex:1;">
+        <div class="recipe-list">
+
+            {% for fav in favorites %}
+            <a href="{% url 'recipe_detail' pk=fav.recipe.pk %}" style="text-decoration:none; color:black;">
+                <div class="recipe-card">
+                    <h3>{{ fav.recipe.name }}</h3>
+                    <p>⏱ {{ fav.recipe.preparation_time }} min</p>
+                </div>
+            </a>
+            {% empty %}
+            <p>No tienes favoritos aún.</p>
+            {% endfor %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

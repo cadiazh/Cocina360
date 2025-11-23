@@ -1,0 +1,235 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocina 360 - {% block title %}{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f3f4f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- TOP NAVBAR --- */
+        .top-nav {
+            width: 100%;
+            background: white;
+            padding: 14px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* Logo */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand img {
+            height: 40px;
+            width: auto;
+        }
+
+        .brand h1 {
+            font-size: 1.6rem;
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        /* Search bar */
+        .search-box {
+            width: 350px;
+        }
+
+        .search-box form {
+            display: flex;
+            width: 100%;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 40px;
+            border: 1px solid #ddd;
+            font-size: 15px;
+        }
+
+        /* Right side menu */
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .top-nav-right a,
+        .top-nav-right form button,
+        .admin-link {
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .admin-link {
+            color: #d97706; /* Color ámbar para destacar Admin */
+        }
+
+        .top-nav-right a:hover,
+        .top-nav-right form button:hover,
+        .admin-link:hover {
+            text-decoration: underline;
+        }
+
+        /* --- PAGE LAYOUT --- */
+        .layout {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        /* Main card */
+        .card {
+            flex: 1;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+        }
+
+        /* General link style */
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .top-nav {
+                flex-wrap: wrap;
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            .brand h1 {
+                font-size: 1.4rem;
+            }
+            .search-box {
+                order: 3; /* Mover la barra de búsqueda debajo */
+                width: 100%;
+                margin-top: 10px;
+            }
+            .top-nav-right {
+                order: 2;
+                gap: 10px;
+            }
+            .layout {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+            }
+            .top-nav-right a,
+            .top-nav-right form button,
+            .admin-link {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- TOP NAVBAR -->
+    <div class="top-nav">
+
+        <!-- LEFT SIDE (Logo) -->
+        <a class="brand" href="{% url 'recipe_list' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Cocina 360">
+            <h1>Cocina360</h1>
+        </a>
+
+        <!-- CENTER (Search bar) -->
+        <div class="search-box">
+            <form method="get" action="{% url 'recipe_list' %}" class="search-form">
+                <input type="text" 
+                    name="q" 
+                    placeholder="Buscar recetas…" 
+                    value="{{ query|default:'' }}">
+            </form>
+        </div>
+
+        <!-- RIGHT (User controls) -->
+        <div class="top-nav-right">
+            {% if user.is_authenticated %}
+                <span>Hola, {{ user.username }}</span>
+                <a href="{% url 'recipe_create' %}">+ Nueva Receta</a>
+                <a href="{% url 'favorite_list' %}">Favoritos</a>
+
+                {# AÑADIR ENLACE DE ADMINISTRADOR SI ES SUPERUSUARIO #}
+                {% if user.is_superuser %}
+                    <a href="{% url 'admin:index' %}" class="admin-link">
+                        <i class="fas fa-user-shield"></i> Admin
+                    </a>
+                {% endif %}
+                
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Cerrar Sesión</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Iniciar Sesión</a>
+                <a href="{% url 'register' %}">Registrarse</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    {% block content %}
+    {% endblock %}
+
+    {% block extra_scripts %}
+    {% endblock %}
+
+</body>
+</html>
