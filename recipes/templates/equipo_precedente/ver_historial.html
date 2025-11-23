@@ -8,12 +8,59 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 20px; }
-        .historial-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 6px; background-color: #e8f0fe; }
-        .item-header { display: flex; justify-content: space-between; font-weight: bold; color: #2980b9; margin-bottom: 8px; }
-        .json-content { white-space: pre-wrap; background-color: #f1f1f1; padding: 10px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; overflow-x: auto; }
-        .no-data { text-align: center; color: #7f8c8d; padding: 30px; border: 1px dashed #ccc; border-radius: 5px; }
+
+        .historial-item { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 6px; 
+            background-color: #e8f0fe; 
+            position: relative;
+        }
+
+        .item-header { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: bold; 
+            color: #2980b9; 
+            margin-bottom: 8px; 
+        }
+
+        .json-content { 
+            white-space: pre-wrap; 
+            background-color: #f1f1f1; 
+            padding: 10px; 
+            border-radius: 4px; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 0.9em; 
+            overflow-x: auto; 
+            margin-bottom: 12px;
+        }
+
+        .pdf-btn {
+            display: inline-block;
+            background-color: #d63031;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .pdf-btn:hover {
+            background-color: #b91d1d;
+        }
+
+        .no-data { 
+            text-align: center; 
+            color: #7f8c8d; 
+            padding: 30px; 
+            border: 1px dashed #ccc; 
+            border-radius: 5px; 
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>📋 Últimos {{ cantidad }} Registros de Historial</h1>
@@ -21,29 +68,34 @@
 
         {% for item in historial_data %}
             <div class="historial-item">
+
                 <div class="item-header">
                     <span>Registro #{{ forloop.counter }}</span>
-                    {% comment %} Asumiendo que el modelo tiene un campo 'timestamp' o similar {% endcomment %}
+
                     {% if item.timestamp %}
                         <span>Fecha: {{ item.timestamp|date:"Y-m-d H:i:s" }}</span>
                     {% endif %}
                 </div>
-                
+
                 <p>Contenido JSON:</p>
+
                 <div class="json-content">
-                    {% comment %} 
-                    Si 'item.content' es un diccionario, usa el filtro |pprint. 
-                    Si es un string JSON, simplemente imprímelo. 
-                    Asumimos que 'content' es el campo que contiene el JSON. 
-                    {% endcomment %}
                     {{ item.content }}
                 </div>
+
+                <!-- BOTÓN INDIVIDUAL PARA PDF -->
+                <a href="{% url 'descargar_json_pdf' item.id %}" class="pdf-btn" target="_blank">
+                    Descargar PDF
+                </a>
+
             </div>
+
         {% empty %}
             <div class="no-data">
                 <p>No se encontraron registros en el historial.</p>
             </div>
         {% endfor %}
+
     </div>
 </body>
 </html>
