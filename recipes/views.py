@@ -26,6 +26,8 @@ from xhtml2pdf import pisa
 from django.conf import settings
 from io import BytesIO
 from django.template.loader import render_to_string
+from .report_generators import PdfRecipeReportGenerator, RecipeReportService
+
 
 def recipe_list(request):
     query = request.GET.get("q", "")  # lo que viene del buscador superior
@@ -611,3 +613,15 @@ def descargar_json_pdf(request, id):
         pdf_response["Content-Disposition"] = f'attachment; filename="json_historial_{id}.pdf"'
     
     return pdf_response
+
+def recipe_pdf(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+
+    # Inyección de la implementación concreta (PDF)
+    service = RecipeReportService(PdfRecipeReportGenerator())
+    pdf_bytes = service.build_report(recipe)
+
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    filename = f"receta_{recipe.id}.pdf"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response

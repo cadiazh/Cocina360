@@ -4,4 +4,5 @@ reportlab==4.0.7
 xhtml2pdf==0.2.16
 requests==2.31.0
 Pillow==10.1.0
-python-dotenv==1.0.0  # Agregado para manejar variables de entorno en settings.py
+python-dotenv==1.0.0  
+xhtml2pdf
