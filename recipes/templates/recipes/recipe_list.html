@@ -19,28 +19,35 @@
     </div>
 
     <!-- CENTRO: LISTADO DE RECETAS -->
-    <div style="flex: 1;">
-        <div class="recipe-list">
-            {% for recipe in recipes %}
-                <div class="recipe-card">
-                    <!-- enlace a detalle de la receta -->
-                    <a href="{% url 'recipe_detail' pk=recipe.pk %}"
-                       style="text-decoration:none; color:black;">
-                        <h3 style="margin-top:0;">{{ recipe.name }}</h3>
-                        <p>⏱ {{ recipe.preparation_time }} min</p>
-                    </a>
+    <div class="recipe-list">
+        {% for recipe in recipes %}
+            <div class="recipe-card"
+                style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #ddd;">
+                
+                <!-- IZQUIERDA: nombre + tiempo -->
+                <a href="{% url 'recipe_detail' pk=recipe.pk %}"
+                style="text-decoration:none; color:black; flex-grow:1;">
+                    <h3 style="margin:0;">{{ recipe.name }}</h3>
+                    <p style="margin:0;">⏱ {{ recipe.preparation_time }} min</p>
+                </a>
 
-                    <!-- botón para descargar PDF de esa receta -->
-                    <a href="{% url 'recipe_pdf' recipe.pk %}"
-                       class="btn btn-secondary"
-                       style="margin-top: 8px; display:inline-block;">
-                        Descargar PDF
-                    </a>
-                </div>
-            {% empty %}
-                <p>No se encontraron recetas.</p>
-            {% endfor %}
-        </div>
+                <!-- DERECHA: botón naranja -->
+                <a href="{% url 'recipe_pdf' recipe.pk %}"
+                style="
+                        background-color: #ff9800;
+                        color: white;
+                        padding: 10px 18px;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        white-space: nowrap;
+                ">
+                    Descargar PDF
+                </a>
+            </div>
+        {% empty %}
+            <p>No se encontraron recetas.</p>
+        {% endfor %}
     </div>
 
     <!-- PANEL DE FILTROS -->
