@@ -17,6 +17,7 @@ urlpatterns = [
 
     path('accounts/', include('django.contrib.auth.urls')),  
     path('accounts/register/', views.register, name='register'), 
+    path('i18n/', include('django.conf.urls.i18n')),
 
     path('recipes/new/', views.recipe_create, name='recipe_create'),
 

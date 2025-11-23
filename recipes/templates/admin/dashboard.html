@@ -5,15 +5,15 @@
 {% block content %}
     <div class="admin-dashboard">
         <h2>Admin Dashboard</h2>
-        <p>Welcome, {{ user.username }}! You can manage your recipes and other data here.</p>
+        <p>Bienvenido, {{ user.username }}! Puedes administrar tus recetas y otros datos aquí.</p>
         
         <div class="admin-actions">
-            <h3>Manage Recipes</h3>
+            <h3>Administrar recetas</h3>
             <ul>
-                <li><a href="{% url 'recipe_create' %}">Create New Recipe</a></li>
-                <li><a href="{% url 'recipe_list' %}">View All Recipes</a></li>
-                <li><a href="{% url 'admin_recipe_edit' pk=recipe.pk %}" class="edit-recipe-btn">Edit Recipe</a></li>
-                <li><a href="{% url 'recipe_delete' pk=recipe.pk %}" class="delete-recipe-btn">Delete Recipe</a></li>
+                <li><a href="{% url 'recipe_create' %}" class="orange-link">Crear nueva receta</a></li>
+                <li><a href="{% url 'recipe_list' %}" class="orange-link">Ver todas las recetas</a></li>
+                <li><a href="{% url 'admin_recipe_edit' pk=recipe.pk %}" class="edit-recipe-btn; orange-link">Editar receta</a></li>
+                <li><a href="{% url 'recipe_delete' pk=recipe.pk %}" class="delete-recipe-btn; orange-link">Eliminar receta</a></li>
             </ul>
         </div>
 

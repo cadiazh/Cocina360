@@ -6,34 +6,32 @@
 
     <!-- SIDEBAR IZQUIERDA -->
     <div class="sidebar">
-        <img src="{% static 'images/logo.png' %}" style="width: 120px; margin-bottom: 10px;">
-        <h2 style="margin-top: 0;">Cocina 360</h2>
+        <img src="{% static 'images/logo.png' %}" style="width: 250px; margin-bottom: 5px;">
+        <h2 style="margin-top: 0; font-weight: bold; text-align: center;">Cocina 360</h2>
 
         <h3>📚 Mis favoritos</h3>
 
         {% if user.is_authenticated %}
-            <a href="{% url 'favorite_list' %}">Ver lista</a>
+        <a href="{% url 'favorite_list' %}" style="color: #ff9800; font-size: 1.2rem;">Ver lista</a>
         {% else %}
-            <p>Para ver favoritos <a href="{% url 'login' %}">inicia sesión</a>.</p>
+        <p>Para ver favoritos <a href="{% url 'login' %}">inicia sesión</a>.</p>
         {% endif %}
     </div>
 
     <!-- CENTRO: LISTADO DE RECETAS -->
     <div class="recipe-list">
         {% for recipe in recipes %}
-            <div class="recipe-card"
-                style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #ddd;">
-                
-                <!-- IZQUIERDA: nombre + tiempo -->
-                <a href="{% url 'recipe_detail' pk=recipe.pk %}"
-                style="text-decoration:none; color:black; flex-grow:1;">
-                    <h3 style="margin:0;">{{ recipe.name }}</h3>
-                    <p style="margin:0;">⏱ {{ recipe.preparation_time }} min</p>
-                </a>
+        <div class="recipe-card"
+            style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #ddd;">
 
-                <!-- DERECHA: botón naranja -->
-                <a href="{% url 'recipe_pdf' recipe.pk %}"
-                style="
+            <!-- IZQUIERDA: nombre + tiempo -->
+            <a href="{% url 'recipe_detail' pk=recipe.pk %}" style="text-decoration:none; color:black; flex-grow:1;">
+                <h3 style="margin:0;">{{ recipe.name }}</h3>
+                <p style="margin:0;">⏱ {{ recipe.preparation_time }} min</p>
+            </a>
+
+            <!-- DERECHA: botón naranja -->
+            <a href="{% url 'recipe_pdf' recipe.pk %}" style="
                         background-color: #ff9800;
                         color: white;
                         padding: 10px 18px;
@@ -42,20 +40,20 @@
                         font-weight: bold;
                         white-space: nowrap;
                 ">
-                    Descargar PDF
-                </a>
-            </div>
+                Descargar PDF
+            </a>
+        </div>
         {% empty %}
-            <p>No se encontraron recetas.</p>
+        <p>No se encontraron recetas.</p>
         {% endfor %}
     </div>
 
     <!-- PANEL DE FILTROS -->
-    <div class="card" style="width:260px; position: sticky; top: 100px; height: fit-content;">
+    <div class="card" style="width:200px; position: sticky; top: 100px; height: fit-content;">
         <h2>Filtros</h2>
 
         <form method="get">
-            <label>Ingrediente contiene:</label>
+            <label>Ingrediente que contiene:</label>
             <input type="text" name="ingredient" value="{{ ingredient_query }}">
 
             <br><br>
@@ -64,13 +62,34 @@
             <input type="number" name="max_time" value="{{ max_time }}">
 
             <br><br>
-
-            <button class="btn-primary" style="width:100%;">Aplicar</button>
-
-            <br><br>
-            <a href="{% url 'recipe_list' %}">Limpiar filtro</a>
-        </form>
+            <button class="btn-primary" style="
+                background-color: #9b9b9b;
+                color: white;
+                padding: 8px 12px;
+                text-decoration: none;
+                border-radius: 4px;
+                font-weight: bold;
+                font-size: 1.1rem;
+                width: 100%;
+                cursor: pointer;
+                margin-bottom: 20px;
+            ">
+            Aplicar
+            </button>
+            <a href="{% url 'recipe_list' %}" style="
+                        background-color: #ff9800;
+                        color: white;
+                        padding: 10px 18px;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        white-space: nowrap;
+                ">
+                Limpiar filtro
+            </a>
     </div>
+    </form>
+</div>
 
 </div>
 

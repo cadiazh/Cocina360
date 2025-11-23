@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Confirm Delete - Cocina 360</title>
+    <title>Confirmar eliminación - Cocina 360</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,11 +59,11 @@
     </style>
 </head>
 <body>
-    <h1>Delete Recipe</h1>
-    <p>Are you sure you want to delete the recipe "<strong>{{ recipe.name }}</strong>"?</p>
+    <h1>Eliminar Receta</h1>
+    <p>Estás seguro de que quieres eliminar la receta? "<strong>{{ recipe.name }}</strong>"?</p>
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="confirm-btn">Yes, Delete</button>
+        <button type="submit" class="confirm-btn">Si, Eliminar</button>
         <a href="{% url 'recipe_detail' pk=recipe.pk %}" class="cancel-link">Cancel</a>
     </form>
 </body>

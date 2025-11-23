@@ -1,84 +1,314 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>New Recipe - Cocina 360</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-        button, .add-btn, .remove-btn {
-            margin-top: 10px;
-            padding: 8px 16px;
-            background: #0077cc;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            border-radius: 4px;
-            user-select: none;
-        }
-        button:hover, .add-btn:hover, .remove-btn:hover { background: #005fa3; }
-        fieldset { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; }
-        legend { font-weight: bold; }
-        .form-row { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-        .remove-btn {
-            background: #cc3300;
-            padding: 4px 10px;
-            font-size: 0.9rem;
-            border-radius: 4px;
-        }
-        .remove-btn:hover { background: #992200; }
+{% extends "base.html" %}
 
-        /* 🔥 Ocultar los cubitos (checkbox DELETE) */
-        input[type="checkbox"][name$="-DELETE"] {
-            display: none;
-        }
-        input[name$="-order"] {
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <h1>Publish New Recipe</h1>
-    <form method="post" id="recipe-form">
-        {% csrf_token %}
-        {{ form.as_p }}
+{% block title %}Nueva Receta - Cocina 360{% endblock %}
 
-        <fieldset id="ingredients-fieldset">
-            <legend>Ingredients</legend>
-            {{ ingredient_formset.management_form }}
-            <div id="ingredients-forms">
-                {% for form in ingredient_formset %}
-                    <div class="form-row">
-                        {{ form.name.label_tag }} {{ form.name }}
-                        {{ form.DELETE }}  <!-- oculto por CSS -->
-                        <button type="button" class="remove-btn" onclick="removeForm(this)">Remove</button>
+{% block extra_head %}
+<style>
+/* --- LAYOUT --- */
+.layout {
+    display: flex;
+    gap: 25px;
+    margin-top: 20px;
+}
+#ingredients-fieldset label {
+            font-size: 1.2rem;  /* Tamaño más grande */
+            font-weight: bold;  /* Negrita */
+            color: #333;        /* Color de texto (opcional) */
+        }
+
+/* --- CARD PRINCIPAL --- */
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    font-family: Arial, sans-serif; /* Aseguramos que la fuente sea consistente */
+}
+
+/* TITULO DE LA CARD */
+.card h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #333;
+    border-bottom: 3px solid #ff7a00;
+    padding-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* SUBTÍTULOS DE LA CARD */
+.card h2 {
+    margin-top: 25px;
+    font-size: 1.9rem;
+    color: #444;
+    border-left: 5px solid #ff7a00;
+    padding-left: 10px;
+}
+
+/* --- FORMULARIO --- */
+.form-row {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+label {
+    font-size: 1.4rem;
+    color: #333;
+    font-weight: bold;
+    font-family: Arial, sans-serif; /* Aseguramos que la fuente sea consistente */
+}
+
+input, select, textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    font-family: Arial, sans-serif; /* Aseguramos que la fuente sea consistente */
+}
+
+input[type="checkbox"] {
+    margin-top: 6px;
+}
+
+/* --- INGREDIENTES --- */
+.ingredients-list {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ingredient-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: #fff2e6;
+    border: 2px solid #ffb366;
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.ingredient-card:hover {
+    transform: scale(1.03); /* Efecto hover para agrandar la card */
+}
+
+.ingredient-check {
+    width: 22px;
+    height: 22px;
+    accent-color: #ff7a00;
+    margin-top: 4px;
+}
+
+.ingredient-text {
+    flex: 1;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    font-family: Arial, sans-serif; /* Aseguramos que la fuente sea consistente */
+}
+
+.ingredient-text.completed {
+    text-decoration: line-through;
+    color: #777;
+    font-style: italic;
+}
+
+/* --- PASOS --- */
+.steps-list {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.step-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: #fff2e6;
+    border: 2px solid #ffb366;
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.step-card:hover {
+    transform: scale(1.03); /* Efecto hover para agrandar la card */
+}
+
+.step-check {
+    width: 22px;
+    height: 22px;
+    accent-color: #ff7a00;
+    margin-top: 4px;
+}
+
+.step-text {
+    flex: 1;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    font-family: Arial, sans-serif; /* Aseguramos que la fuente sea consistente */
+}
+
+.step-text.completed {
+    text-decoration: line-through;
+    color: #777;
+    font-style: italic;
+}
+
+/* --- BOTÓN PUBLICAR --- */
+.publish-btn {
+    background-color: #ff9800;
+    color: white;
+    padding: 10px 20px; /* Tamaño más pequeño para el botón */
+    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem; /* Ajuste al tamaño adecuado */
+    transition: background-color 0.3s;
+    margin-top: 20px; /* Añadimos espacio entre el formulario y el botón */
+    font-family: Arial, sans-serif; /* Aseguramos que la fuente sea consistente */
+}
+
+.publish-btn:hover {
+    background-color: #e68900;
+}
+
+/* --- BOTONES ELIMINAR --- */
+.remove-btn {
+    margin-top: 8px;
+    background-color: #ff0000;
+    color: white;
+    padding: 10px 20pX;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    width: auto; 
+    font-family: Arial, sans-serif;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.remove-btn:hover {
+    background-color: #e68900;
+    width: auto; 
+}
+
+.remove-btn {
+    text-align: left; /* Alineamos el botón a la izquierda */
+    font-size: 0.9rem; /* Tamaño de fuente más pequeño */
+    padding: 10px 20px; 
+    width: auto; 
+    background-color: #cc3300; /* Rojo */
+}
+
+.remove-btn:hover {
+    background-color: #992200;
+    width: auto; 
+}
+
+.add-btn {
+    background-color: #ff9800;
+    color: white;
+    padding: 10px 20px; /* Tamaño más pequeño para el botón */
+    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem; /* Ajuste al tamaño adecuado */
+    transition: background-color 0.3s;
+    margin-top: 20px; /* Añadimos espacio entre el formulario y el botón */
+}
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <a href="{% url 'recipe_list' %}" class="orange-link">← Volver</a>
+    </div>
+
+    <div style="flex: 1;">
+        <div class="card">
+            <h1>Publicar Nueva Receta</h1>
+
+            <form method="post" id="recipe-form">
+                {% csrf_token %}
+
+                <!-- Nombre -->
+                <div class="form-row">
+                    <label for="{{ form.name.id_for_label }}">Nombre:</label>
+                    {{ form.name }}
+                </div>
+
+                <!-- Tiempo de Preparación -->
+                <div class="form-row">
+                    <label for="{{ form.preparation_time.id_for_label }}">Tiempo de Preparación:</label>
+                    {{ form.preparation_time }}
+                </div>
+
+                <!-- Porción Mínima -->
+                <div class="form-row">
+                    <label for="{{ form.min_portion.id_for_label }}">Porción Mínima:</label>
+                    {{ form.min_portion }}
+                </div>
+
+                <!-- Porción Máxima -->
+                <div class="form-row">
+                    <label for="{{ form.max_portion.id_for_label }}">Porción Máxima:</label>
+                    {{ form.max_portion }}
+                </div>
+
+                <!-- INGREDIENTES -->
+                <fieldset id="ingredients-fieldset">
+                    <legend>Ingredientes</legend>
+                    {{ ingredient_formset.management_form }}
+                     <div id="ingredients-forms">
+                        {% for form in ingredient_formset %}
+                            <div class="form-row">
+                                {{ form.name.label_tag }} {{ form.name }}
+                                {{ form.DELETE }}  <!-- oculto por CSS -->
+                                <button type="button" class="remove-btn" onclick="removeForm(this)">Eliminar Ingrediente</button>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-            <button type="button" class="add-btn" onclick="addForm('ingredients')">+ Add Ingredient</button>
-        </fieldset>
+                    <button type="button" class="add-btn" onclick="addForm('ingredients')">+ Agregar Ingrediente</button>
+                </fieldset>
 
-        <fieldset id="steps-fieldset">
-            <legend>Steps</legend>
-            {{ step_formset.management_form }}
-            <div id="steps-forms">
-                {% for form in step_formset %}
-                    <div class="form-row step-row">
-                        {{ form.order }} <!-- se rellena automáticamente -->
-                        {{ form.description.label_tag }} {{ form.description }}
-                        {{ form.DELETE }} <!-- oculto -->
-                        <button type="button" class="remove-btn" onclick="removeForm(this)">Remove</button>
+                <!-- PASOS -->
+                <fieldset id="steps-fieldset">
+                    <legend>Pasos</legend>
+                    {{ step_formset.management_form }}
+                    <div id="steps-forms">
+                        {% for form in step_formset %}
+                            <div class="form-row step-row">
+                                {{ form.order }} <!-- se rellena automáticamente -->
+                                {{ form.description.label_tag }} {{ form.description }}
+                                {{ form.DELETE }} <!-- oculto -->
+                                <button type="button" class="remove-btn" onclick="removeForm(this)">Eliminar Paso</button>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-            <button type="button" class="add-btn" onclick="addForm('steps')">+ Add Step</button>
-        </fieldset>
+                    <button type="button" class="add-btn" onclick="addForm('steps')">+ Agregar Paso</button>
+                </fieldset>
 
-        <button type="submit">Publish Recipe</button>
-    </form>
-    <p><a href="{% url 'recipe_list' %}">← Back to Recipes</a></p>
+                <!-- BOTÓN PUBLICAR RECETA -->
+                <button type="submit" class="publish-btn">Publicar Receta</button>
+            </form>
+
+            <p><a href="{% url 'recipe_list' %}" class="back-link">← Volver a las recetas</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
 
 <script>
     function removeForm(button) {
@@ -104,7 +334,7 @@
         tempDiv.classList.add('form-row');
         if (prefix === 'steps') tempDiv.classList.add('step-row');
         tempDiv.innerHTML = newFormHtml + `
-            <button type="button" class="remove-btn" onclick="removeForm(this)">Remove</button>
+            <button type="button" class="remove-btn" onclick="removeForm(this)">Eliminar</button>
         `;
 
         formsDiv.appendChild(tempDiv);
@@ -138,24 +368,23 @@
             });
         });
     }
-
-    // Ejecutar al inicio para numerar bien los pasos existentes
-    document.addEventListener("DOMContentLoaded", updateFormIndices);
 </script>
 
 <!-- Empty form templates -->
 <div id="ingredients-empty-form" style="display:none;">
-    <label for="id_ingredients-__prefix__-name">Name:</label>
+    <label for="id_ingredients-__prefix__-name">Nombre:</label>
     <input type="text" name="ingredients-__prefix__-name" id="id_ingredients-__prefix__-name" />
     <input type="checkbox" name="ingredients-__prefix__-DELETE" id="id_ingredients-__prefix__-DELETE" />
 </div>
 
 <div id="steps-empty-form" style="display:none;">
     <input type="hidden" name="steps-__prefix__-order" id="id_steps-__prefix__-order" value="__order__" />
-    <label for="id_steps-__prefix__-description">Description:</label>
+    <label for="id_steps-__prefix__-description">Descripción:</label>
     <textarea name="steps-__prefix__-description" id="id_steps-__prefix__-description"></textarea>
     <input type="checkbox" name="steps-__prefix__-DELETE" id="id_steps-__prefix__-DELETE" />
 </div>
 
 </body>
 </html>
+
+
