@@ -7,6 +7,8 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            font-size: 14px;
+            line-height: 1.4;
         }
         h1 {
             text-align: center;
@@ -14,36 +16,43 @@
         }
         h2 {
             color: #0077cc;
+            margin-top: 20px;
         }
-        .ingredient, .step {
-            margin-bottom: 10px;
+        /* Asegura saltos de línea normales en PDF */
+        p, li {
+            white-space: normal;
+            word-wrap: break-word;
         }
+
         .ingredient-list, .step-list {
-            list-style-type: none;
-            padding-left: 0;
+            padding-left: 20px;
         }
+
         .ingredient-item, .step-item {
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
     </style>
 </head>
 <body>
     <h1>{{ recipe.name }}</h1>
-    <p><strong>Preparación: </strong>{{ recipe.preparation_time }} minutos</p>
+
+    <p><strong>Preparación: </strong>{{ recipe.preparation_time|floatformat:"0" }} minutos</p>
     <p><strong>Porciones: </strong>{{ recipe.min_portion }} - {{ recipe.max_portion }} personas</p>
 
     <h2>Ingredientes:</h2>
     <ul class="ingredient-list">
         {% for ingredient in recipe.ingredients.all %}
-            <li class="ingredient-item">{{ ingredient.name }} - {{ ingredient.quantity }}</li>
+            <li class="ingredient-item">{{ ingredient.name }} – {{ ingredient.quantity }}</li>
         {% endfor %}
     </ul>
 
     <h2>Instrucciones:</h2>
+    <h3>Pasos:</h3>
     <ol class="step-list">
         {% for step in recipe.steps.all %}
-            <li class="step-item">{{ step.order }}. {{ step.description }}</li>
+            <li class="step-item">{{ step.description }}</li>
         {% endfor %}
     </ol>
+
 </body>
 </html>
