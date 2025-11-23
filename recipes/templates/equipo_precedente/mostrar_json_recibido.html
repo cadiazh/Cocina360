@@ -29,8 +29,10 @@
     <pre>{{ json_data|safe }}</pre>
 
     <div>
-        <a href="{% url 'recibir_json_pdf' %}" class="orange-link">⬅ Volver a esperar más JSON</a>
+        <a href="{% url 'enviar_receta' %}" class="orange-link">⬅ Volver a enviar más JSON</a>
 
+        <a href="{% url 'ver_historial_json' %}"class="orange-link">⬅ Ver historial</a>
+        
         <a href="{% url 'descargar_json_pdf' id=id %}" class="download-button" target="_blank">
             ⬇ Descargar como PDF
         </a>
