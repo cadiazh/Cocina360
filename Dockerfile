@@ -19,8 +19,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia el resto del código del proyecto
 COPY . .
-COPY .env /app/.env
-COPY key.env /app/key.env
 # Expone el puerto 8000 (puerto por defecto de Django)
 EXPOSE 8080
 
